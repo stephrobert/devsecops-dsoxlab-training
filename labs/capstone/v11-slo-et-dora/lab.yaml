@@ -1,0 +1,65 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v11-slo-et-dora
+title: "V11, measuring reliability: an SLO that pages, a runbook, the DORA metrics"
+description: |
+  notes-api is secured end to end, but nothing tells the team it is down
+  before its users do. Write the availability SLO as a Prometheus alert that
+  pages when the error budget burns 14.4 times too fast, with its unit tests;
+  the runbook the alert links to; and the script that computes the four DORA
+  metrics from the deployment and incident journals. The pipeline checks the
+  alert and recomputes the metrics on every pull request.
+section: capstone
+level: capstone
+difficulty: advanced
+lab_type: lab
+estimated_time: 60m
+skills:
+  - slo
+  - prometheus
+  - runbook
+  - dora-metrics
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V10, plus les journaux de
+  # déploiements et d'incidents du dernier trimestre.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - .github/workflows/pr-welcome.yml
+    - .github/CODEOWNERS
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - scripts/check_sbom.py
+    - scripts/verify_release.sh
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - ops/deployments.jsonl
+    - ops/incidents.jsonl
+    - .trivyignore.yaml
+    - security/notes-api.openvex.json
+    - deploy/signing/cosign.pub
+    - deploy/policies/images-signees.yaml
+    - deploy/policies/registre-interne.yaml
+    - deploy/k8s/namespace.yaml
+    - deploy/k8s/deployment.yaml
+    - deploy/k8s/service.yaml
+    - deploy/k8s/networkpolicy.yaml
+    - infra/deploy.tf
+    - infra/github-oidc-trust.json
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

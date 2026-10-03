@@ -1,0 +1,8 @@
+# Vulnerabilities accepted after triage. One entry per decision, each with a
+# reason a reviewer can check against the code, and an expiry date: on that
+# day the exception lapses, the pipeline turns red again, and the decision is
+# taken anew.
+#
+# No exception is open. GHSA-wj6h-64fc-37mp (Minerva, python-ecdsa) was
+# closed as its review planned: the signature check of POST /notes/import
+# moved to the cryptography package, and ecdsa left the dependencies.

@@ -1,0 +1,74 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://github.com/acme/notes-api/security/vex/notes-api-2026-10-03",
+  "author": "acme/notes-api security team",
+  "timestamp": "2026-10-03T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2025-8869"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/pip@25.0.1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "pip 25.0.1 comes with the python:3.12-slim base image of the releases built before this VEX; notes-api never runs pip, and the images built since no longer contain it."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-13346"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/pip@25.0.1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "pip 25.0.1 comes with the python:3.12-slim base image of the releases built before this VEX; notes-api never runs pip, and the images built since no longer contain it."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-3219"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/pip@25.0.1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "pip 25.0.1 comes with the python:3.12-slim base image of the releases built before this VEX; notes-api never runs pip, and the images built since no longer contain it."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-6357"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/pip@25.0.1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "pip 25.0.1 comes with the python:3.12-slim base image of the releases built before this VEX; notes-api never runs pip, and the images built since no longer contain it."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2026-8643"
+      },
+      "products": [
+        {
+          "@id": "pkg:pypi/pip@25.0.1"
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_in_execute_path",
+      "impact_statement": "pip 25.0.1 comes with the python:3.12-slim base image of the releases built before this VEX; notes-api never runs pip, and the images built since no longer contain it."
+    }
+  ]
+}

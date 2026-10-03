@@ -12,6 +12,7 @@ them.
 | Duration | about 50 minutes |
 | Paired lesson | [VEX: stating what is actually exploitable](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/vex/) |
 | Previous | `capstone-v09-runtime-cloisonne` |
+| Next | `capstone-v11-slo-et-dora` |
 
 ```bash
 mise install

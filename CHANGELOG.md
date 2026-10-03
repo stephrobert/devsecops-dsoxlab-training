@@ -147,6 +147,16 @@ this catalog, the version of the common thread.
   far too unstable to found a lab on; pip 25.0.1, frozen by the base image
   digest, carries 5 MEDIUM CVEs fixed upstream. Proven both ways, then
   against four faulty variants.
+- **`capstone-v11-slo-et-dora`**, the last version of the common thread: the
+  availability SLO of notes-api (99.5% over 28 days) becomes a Prometheus
+  alert that pages at a 14.4 burn rate over a long and a short window, with
+  its promtool unit tests; a runbook the alert links to; and `scripts/dora.py`,
+  which computes the four DORA metrics from the deployment and incident
+  journals. The checks submit the learner's alert to their own series with
+  promtool 3.15.0, asking for no alert and reading what promtool actually
+  saw under `got:`, so the alert labels stay free; and they run the DORA
+  script on three fabricated journals against an independent reference.
+  Proven both ways, then against four faulty variants.
 - **`tests/test_fixtures_declarees.py`**: each file of `fixtures/` must be
   declared in `runtime.fixtures`. The V5 `lab.yaml` omitted
   `infra/github-oidc-trust.json`: the solution replay copies the whole

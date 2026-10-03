@@ -156,6 +156,18 @@ pour ce catalogue, la version du fil rouge.
   fonder un lab ; pip 25.0.1, figé par le digest de l'image de base, porte 5
   CVE MEDIUM corrigées en amont. Éprouvé dans les deux sens, puis contre
   quatre variantes fautives.
+- **`capstone-v11-slo-et-dora`**, dernière version du fil rouge : le SLO de
+  disponibilité de notes-api (99,5 % sur 28 jours) devient une alerte
+  Prometheus qui réveille l'astreinte à un taux de brûlure de 14,4 sur une
+  fenêtre longue et une courte, avec ses tests unitaires promtool ; un
+  runbook vers lequel l'alerte renvoie ; et `scripts/dora.py`, qui calcule
+  les quatre métriques DORA depuis les journaux de déploiements et
+  d'incidents. Les contrôles soumettent l'alerte de l'apprenant à leurs
+  propres séries avec promtool 3.15.0, en demandant « aucune alerte » et en
+  lisant ce que promtool a réellement vu sous `got:`, ce qui laisse les
+  labels libres ; et ils exécutent le script DORA sur trois journaux
+  fabriqués, contre une référence indépendante. Éprouvé dans les deux sens,
+  puis contre quatre variantes fautives.
 - **`tests/test_fixtures_declarees.py`** : chaque fichier de `fixtures/` doit
   être déclaré dans `runtime.fixtures`. Le `lab.yaml` de V5 omettait
   `infra/github-oidc-trust.json` : le rejeu des solutions copie le dossier

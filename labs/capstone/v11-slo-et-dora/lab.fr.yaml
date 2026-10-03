@@ -1,0 +1,10 @@
+id: capstone-v11-slo-et-dora
+title: "V11, mesurer la fiabilité : un SLO qui réveille, un runbook, les métriques DORA"
+description: |
+  notes-api est sécurisée de bout en bout, mais rien ne prévient l'équipe
+  qu'elle est tombée avant ses utilisateurs. Écrivez le SLO de disponibilité
+  sous forme d'alerte Prometheus qui réveille l'astreinte quand le budget
+  d'erreurs brûle 14,4 fois trop vite, avec ses tests unitaires ; le runbook
+  vers lequel l'alerte renvoie ; et le script qui calcule les quatre métriques
+  DORA depuis les journaux de déploiements et d'incidents. Le pipeline vérifie
+  l'alerte et recalcule les métriques à chaque pull request.

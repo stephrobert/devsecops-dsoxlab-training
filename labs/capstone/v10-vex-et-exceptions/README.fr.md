@@ -11,6 +11,7 @@ aux exploitants des versions précédentes ce qui ne les concerne pas.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [VEX : dire ce qui est réellement exploitable](https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/) |
 | Précédent | `capstone-v09-runtime-cloisonne` |
+| Suivant | `capstone-v11-slo-et-dora` |
 
 ```bash
 mise install

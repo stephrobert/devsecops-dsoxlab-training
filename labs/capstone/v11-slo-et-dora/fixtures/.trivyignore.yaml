@@ -1,0 +1,21 @@
+# Constats de configuration acceptés après revue. Chacun dit pourquoi, et
+# jusqu'à quand : à l'échéance, Trivy le signale de nouveau et le pipeline
+# repasse au rouge, jusqu'à ce que la décision soit reprise.
+misconfigurations:
+  - id: AWS-0090
+    paths:
+      - infra/main.tf
+    statement: >-
+      notes-api-exports holds exports regenerated every night from the
+      database; an old version has no value, and versioning would keep every
+      night's copy. Review by the expiry date, with a lifecycle rule.
+    expired_at: 2027-01-03
+  - id: KSV-0125
+    paths:
+      - deploy/k8s/deployment.yaml
+    statement: >-
+      registry.notes.internal is the team's own registry, unknown to Trivy's
+      list of trusted registries. The compensating control is the admission
+      policy deploy/policies/registre-interne.yaml, which refuses any other
+      registry in the notes-api namespace. Review by the expiry date.
+    expired_at: 2027-01-03

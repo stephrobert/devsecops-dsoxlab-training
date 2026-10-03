@@ -192,8 +192,9 @@ refuse un lien dans la mauvaise langue.
 | `capstone-v08-admission-signee` | V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
 | `capstone-v09-runtime-cloisonne` | V9, l'exécution cloisonnée : Pods restreints et réseau fermé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
 | `capstone-v10-vex-et-exceptions` | V10, VEX et exceptions datées : chaque constat accepté est écrit | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/) |
+| `capstone-v11-slo-et-dora` | V11, mesurer la fiabilité : un SLO qui réveille, un runbook, les métriques DORA | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/) |
 
-_11 labs, table générée par `scripts/gen_catalog.py`._
+_12 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->
 
 ## Contribuer et licence

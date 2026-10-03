@@ -50,3 +50,4 @@ sections:
       - capstone/v08-admission-signee
       - capstone/v09-runtime-cloisonne
       - capstone/v10-vex-et-exceptions
+      - capstone/v11-slo-et-dora
