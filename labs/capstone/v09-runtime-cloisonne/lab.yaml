@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v09-runtime-cloisonne
+title: "V9, a contained runtime: restricted pods and closed network"
+description: |
+  notes-api runs in its namespace with default settings: a process that may
+  escalate its privileges, keeps its capabilities, mounts an API token, and a
+  pod that can reach any other pod. Enforce the restricted Pod Security
+  Standard on the namespace, harden the Deployment until it passes it, and
+  write the network policies that only let the ingress controller in and DNS
+  out. The checks build your image and measure the real traffic.
+section: capstone
+level: capstone
+difficulty: advanced
+lab_type: lab
+estimated_time: 50m
+skills:
+  - pod-security-standards
+  - network-policies
+  - kubernetes
+  - security-context
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V8, plus les manifestes de
+  # déploiement de notes-api, écrits avec les réglages par défaut.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - .github/workflows/pr-welcome.yml
+    - .github/CODEOWNERS
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - scripts/check_sbom.py
+    - scripts/verify_release.sh
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - deploy/signing/cosign.pub
+    - deploy/policies/images-signees.yaml
+    - deploy/policies/registre-interne.yaml
+    - deploy/k8s/namespace.yaml
+    - deploy/k8s/deployment.yaml
+    - deploy/k8s/service.yaml
+    - infra/deploy.tf
+    - infra/github-oidc-trust.json
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

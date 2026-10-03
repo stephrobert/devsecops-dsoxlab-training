@@ -127,6 +127,20 @@ pour ce catalogue, la version du fil rouge.
   `mise.toml` épingle désormais kind 0.33.0, kubectl 1.37.1, helm 4.3.0 et
   cosign 3.1.3. Éprouvé dans les deux sens, puis contre quatre variantes
   fautives.
+- **`capstone-v09-runtime-cloisonne`** : l'espace de noms de notes-api impose
+  le standard restricted des Pod Security Standards, le Deployment retire
+  toutes les capacités, interdit l'escalade et ne monte aucun jeton d'API, et
+  des NetworkPolicies ne laissent entrer que le contrôleur d'entrée et sortir
+  que le DNS. Les contrôles construisent l'image de l'apprenant, la chargent
+  dans kind, appliquent les manifestes et mesurent le trafic réel depuis
+  `ingress`, depuis `default` et depuis notes-api ; ils lisent
+  `/proc/self/status` (`NoNewPrivs`, `CapBnd`) plutôt que le manifeste.
+  L'image de V6 tourne déjà sous l'uid 10001 : un contrôle sur l'uid seul
+  serait passé sur le point de départ. La détection à l'exécution (Falco)
+  reste hors du lab : elle exige une vraie machine, pas un cluster dans
+  Docker. Éprouvé dans les deux sens, puis contre quatre variantes fautives ;
+  une cinquième, sans la politique de refus général, passe à juste titre,
+  les deux autres politiques isolant déjà les Pods qu'elles sélectionnent.
 - **`tests/test_fixtures_declarees.py`** : chaque fichier de `fixtures/` doit
   être déclaré dans `runtime.fixtures`. Le `lab.yaml` de V5 omettait
   `infra/github-oidc-trust.json` : le rejeu des solutions copie le dossier

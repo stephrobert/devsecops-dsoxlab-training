@@ -668,6 +668,13 @@ class BancKind:
             )
         return f"{REGISTRE_INTERNE}/{depot}@{digest}"
 
+    def charger_image(self, etiquette: str) -> None:
+        """Charge une image locale dans les nœuds, sans passer par un registre."""
+        _ou_echouer(
+            executer(["kind", "load", "docker-image", etiquette, "--name", self.nom], timeout=300),
+            "kind load docker-image",
+        )
+
     def admettre(self, namespace: str, nom: str, image: str) -> tuple[bool, str]:
         """Demande l'admission d'un Pod, sans le créer. (admis, message)"""
         res = self.kubectl(
@@ -678,9 +685,9 @@ class BancKind:
 
 
 @contextlib.contextmanager
-def banc_kind_kyverno(prefixe: str = "fil-rouge") -> Iterator[BancKind]:
-    """Monte kind + registre interne + Kyverno, et détruit tout à la sortie."""
-    for outil in ("docker", "kind", "kubectl", "helm", "cosign"):
+def banc_kind_kyverno(prefixe: str = "fil-rouge", *, kyverno: bool = True) -> Iterator[BancKind]:
+    """Monte kind + registre interne (+ Kyverno), et détruit tout à la sortie."""
+    for outil in ("docker", "kind", "kubectl", *(("helm", "cosign") if kyverno else ())):
         exiger_outil(outil)
     import secrets as _secrets
 
@@ -722,18 +729,24 @@ def banc_kind_kyverno(prefixe: str = "fil-rouge") -> Iterator[BancKind]:
                     ["docker", "exec", "-i", noeud, "cp", "/dev/stdin", f"{dossier_hote}/hosts.toml"],
                     entree=f'[host."http://{REGISTRE_INTERNE}"]\n', timeout=60,
                 )
-            _ou_echouer(
-                executer(
-                    [
-                        "helm", "install", "kyverno", CHART_KYVERNO, "--version", VERSION_CHART_KYVERNO,
-                        "--kubeconfig", str(banc.kubeconfig), "-n", "kyverno", "--create-namespace",
-                        "--set", "features.registryClient.allowInsecure=true", "--wait", "--timeout", "6m",
-                    ],
-                    timeout=420,
-                ),
-                "l'installation de Kyverno",
-            )
+            if kyverno:
+                _installer_kyverno(banc)
             yield banc
         finally:
             executer(["kind", "delete", "cluster", "--name", nom], timeout=300)
             executer(["docker", "rm", "-f", registre], timeout=120)
+
+
+def _installer_kyverno(banc: BancKind) -> None:
+    """Installe Kyverno depuis son chart OCI, version épinglée."""
+    _ou_echouer(
+        executer(
+            [
+                "helm", "install", "kyverno", CHART_KYVERNO, "--version", VERSION_CHART_KYVERNO,
+                "--kubeconfig", str(banc.kubeconfig), "-n", "kyverno", "--create-namespace",
+                "--set", "features.registryClient.allowInsecure=true", "--wait", "--timeout", "6m",
+            ],
+            timeout=420,
+        ),
+        "l'installation de Kyverno",
+    )

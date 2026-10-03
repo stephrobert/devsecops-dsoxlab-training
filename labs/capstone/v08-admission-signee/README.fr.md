@@ -11,6 +11,7 @@ autre registre est refusée à la porte.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [Vérifier les artefacts à l'admission](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
 | Précédent | `capstone-v07-sbom-et-provenance` |
+| Suivant | `capstone-v09-runtime-cloisonne` |
 
 ```bash
 mise install

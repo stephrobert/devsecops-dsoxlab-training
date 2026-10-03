@@ -1,0 +1,10 @@
+id: capstone-v09-runtime-cloisonne
+title: "V9, l'exécution cloisonnée : Pods restreints et réseau fermé"
+description: |
+  notes-api tourne dans son espace de noms avec les réglages par défaut : un
+  processus qui peut gagner des privilèges, garde ses capacités, monte un
+  jeton d'API, et un Pod qui joint n'importe quel autre Pod. Imposez le
+  standard restricted des Pod Security Standards à l'espace de noms, durcissez
+  le Deployment jusqu'à ce qu'il y passe, et écrivez les NetworkPolicies qui ne
+  laissent entrer que le contrôleur d'entrée et sortir que le DNS. Les
+  contrôles construisent votre image et mesurent le trafic réel.

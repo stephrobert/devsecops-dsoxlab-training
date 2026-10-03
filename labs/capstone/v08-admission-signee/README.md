@@ -11,6 +11,7 @@ another registry is refused at the door.
 | Duration | about 50 minutes |
 | Paired lesson | [Verifying artifacts at admission](https://blog.stephane-robert.info/en/docs/devsecops/runtime/kubernetes-supply-chain-security/) |
 | Previous | `capstone-v07-sbom-et-provenance` |
+| Next | `capstone-v09-runtime-cloisonne` |
 
 ```bash
 mise install

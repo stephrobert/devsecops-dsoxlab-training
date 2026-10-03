@@ -121,6 +121,18 @@ this catalog, the version of the common thread.
   `--new-bundle-format=false`. `mise.toml` now pins kind 0.33.0, kubectl
   1.37.1, helm 4.3.0 and cosign 3.1.3. Proven both ways, then against four
   faulty variants.
+- **`capstone-v09-runtime-cloisonne`**: the notes-api namespace enforces the
+  restricted Pod Security Standard, the Deployment drops every capability,
+  forbids escalation and mounts no API token, and NetworkPolicies only let
+  the ingress controller in and DNS out. The checks build the learner's
+  image, load it into kind, apply the manifests and measure the real traffic
+  from `ingress`, from `default` and from notes-api itself; they read
+  `/proc/self/status` (`NoNewPrivs`, `CapBnd`) rather than the manifest. The
+  V6 image already runs as uid 10001, so a check on the uid alone would have
+  passed on the starting point. Runtime detection (Falco) is left out: it
+  needs a real machine, not a cluster in Docker. Proven both ways, then
+  against four faulty variants; a fifth, without the deny-all policy, rightly
+  passes, the two other policies already isolating the pods they select.
 - **`tests/test_fixtures_declarees.py`**: each file of `fixtures/` must be
   declared in `runtime.fixtures`. The V5 `lab.yaml` omitted
   `infra/github-oidc-trust.json`: the solution replay copies the whole

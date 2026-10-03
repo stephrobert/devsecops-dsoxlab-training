@@ -1,0 +1,183 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Les workflows sont du code qui s'exécute avec des droits : ils passent
+  # leur propre revue automatique, avant les tests. actionlint d'abord, les
+  # erreurs de syntaxe et de shell ; zizmor ensuite, les failles de sécurité
+  # (déclencheurs dangereux, injections, jetons trop larges). Images épinglées
+  # par digest, relevé le 2026-10-03.
+  workflows:
+    name: Auditer les workflows
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Vérifier la syntaxe des workflows
+        uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+        with:
+          args: -no-color
+
+      - name: Auditer la sécurité des workflows
+        uses: docker://ghcr.io/zizmorcore/zizmor:1.30.1@sha256:a2eb396d886c053073405c7a980f2139ba2248ec172243cfa3841e57196e8101
+        with:
+          args: --offline --no-progress .
+
+  tests:
+    name: Tests de notes-api
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Les portes de sécurité passent avant tout le reste : un secret, une
+      # injection ou une dépendance vulnérable ne doivent pas attendre la fin
+      # des tests pour arrêter la branche. Images épinglées par digest, relevé
+      # le 2026-10-03.
+      - name: Chercher les secrets
+        uses: docker://zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+        with:
+          args: dir . --redact --exit-code 1
+
+      - name: Analyse statique du code
+        uses: docker://semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
+        with:
+          args: semgrep scan --config p/python --error --metrics=off .
+
+      # osv-scanner lit uv.lock et confronte chaque version à la base OSV. Il
+      # sort en échec sur toute vulnérabilité connue, sauf celles que
+      # osv-scanner.toml accepte, avec une raison et une date d'expiration.
+      - name: Analyser les dépendances
+        uses: docker://ghcr.io/google/osv-scanner:v2.6.0@sha256:afd838850ac1a0fcc15ff4a041dc9ba11123c3f0d2666217a5f0fcf9222b55fa
+        with:
+          args: scan source -r .
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+
+      - name: Installer les dépendances verrouillées
+        run: uv sync --locked
+
+      - name: Vérifier le modèle de menace
+        run: uv run python scripts/check_threat_model.py threat-model.yml
+
+      - name: Lancer les tests
+        run: uv run pytest
+
+  # Publie l'archive de notes-api dans le bucket des versions, après les tests,
+  # à chaque push sur main, et seulement là : ni une branche de travail ni une
+  # pull request ne publient.
+  # Ce que l'on livre, au-delà du code : l'image et l'infrastructure. Trivy lit
+  # d'abord la configuration (Dockerfile et Terraform), puis construit l'image
+  # et en cherche les vulnérabilités. Seuil : HIGH et CRITICAL, et pour
+  # l'image, seulement ce qui a un correctif publié. Trivy 0.75.0, image
+  # signée par son workflow de publication (vérifiée avec cosign), épinglée par
+  # digest le 2026-10-03, loin des versions 0.69.4 à 0.69.6 compromises en
+  # mars 2026.
+  image:
+    name: Image et infrastructure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Analyser la configuration
+        uses: docker://ghcr.io/aquasecurity/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+        with:
+          args: config --severity HIGH,CRITICAL --exit-code 1 .
+
+      - name: Construire l'image
+        run: |
+          docker build -t notes-api:ci .
+          docker save notes-api:ci -o notes-api.tar
+
+      - name: Analyser l'image
+        uses: docker://ghcr.io/aquasecurity/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+        with:
+          args: image --input notes-api.tar --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1
+
+      # L'inventaire de ce que l'image embarque, au format CycloneDX, tiré de
+      # l'image elle-même et non du verrou : confronté à uv.lock, il révèle un
+      # paquet installé hors du verrou, que personne n'a relu.
+      - name: Produire le SBOM de l'image
+        uses: docker://ghcr.io/aquasecurity/trivy:0.75.0@sha256:af6acf9a6b85dfe389a1941505c0ce9efef52a4719635e1a962f022a3d855daa
+        with:
+          args: image --input notes-api.tar --format cyclonedx --output sbom.cdx.json
+
+      - name: Confronter le SBOM au verrou
+        run: python3 scripts/check_sbom.py sbom.cdx.json uv.lock
+
+      # upload-artifact reste en v5 et download-artifact en v6 : sous act
+      # 0.2.89, les versions suivantes échouent sur « Unexpected end of JSON
+      # input » contre le serveur d'artefacts local. Mesuré le 2026-10-03.
+      - name: Conserver le SBOM
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: sbom
+          path: sbom.cdx.json
+          if-no-files-found: error
+
+  deploy:
+    name: Publier notes-api
+    needs: [workflows, tests, image]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Le seul job qui peut demander un jeton OIDC. GitHub le signe pour CE
+    # dépôt et CETTE branche ; AWS l'échange contre des identifiants valables
+    # une heure, pour le rôle qui n'accepte que main. Le même jeton signe,
+    # par Sigstore, l'attestation de provenance de l'archive.
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: S'authentifier auprès d'AWS
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/notes-api-ci-deploy
+          aws-region: eu-west-3
+
+      - name: Récupérer le SBOM
+        uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
+        with:
+          name: sbom
+
+      - name: Construire l'archive
+        run: tar czf notes-api.tgz src pyproject.toml uv.lock
+
+      # Qui a construit cette archive, depuis quel dépôt, quel workflow, quelle
+      # référence : une attestation SLSA signée, que scripts/verify_release.sh
+      # vérifie avant tout déploiement.
+      - name: Attester la provenance de l'archive
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: notes-api.tgz
+
+      - name: Publier l'archive et son SBOM
+        run: |
+          aws s3 cp notes-api.tgz "s3://notes-api-releases/notes-api-${GITHUB_SHA}.tgz"
+          aws s3 cp sbom.cdx.json "s3://notes-api-releases/notes-api-${GITHUB_SHA}.cdx.json"
