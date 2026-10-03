@@ -85,5 +85,22 @@ pour ce catalogue, la version du fil rouge.
   qu'actionlint signale aussi, et le pipeline devenait rouge même avec un
   zizmor qui ne bloquait pas. Éprouvé dans les deux sens, puis contre quatre
   variantes fautives.
+- **`capstone-v06-image-et-iac`** : Trivy 0.75.0 (signature vérifiée avec
+  cosign, loin des versions 0.69.4 à 0.69.6 compromises en mars 2026) analyse
+  la configuration, puis l'image construite, toutes deux bloquantes au seuil
+  HIGH et CRITICAL. Le Dockerfile passe à deux étapes depuis des bases
+  épinglées, s'installe depuis `uv.lock` sans le groupe dev, applique les
+  correctifs Debian publiés et tourne sous l'uid 10001 ; l'infrastructure
+  perd SSH, ferme l'API à Internet, bloque l'accès public aux buckets et les
+  chiffre avec une clé KMS en rotation. Mesuré le 2026-10-03 : l'image
+  python:3.12-slim du jour portait déjà une CVE HIGH de libpcre2 corrigée
+  dans Debian, d'où la reconstruction avec les correctifs et
+  `--ignore-unfixed`. Éprouvé dans les deux sens, puis contre quatre
+  variantes fautives.
+- **`tests/test_fixtures_declarees.py`** : chaque fichier de `fixtures/` doit
+  être déclaré dans `runtime.fixtures`. Le `lab.yaml` de V5 omettait
+  `infra/github-oidc-trust.json` : le rejeu des solutions copie le dossier
+  entier et ne le voyait pas, alors qu'un apprenant lancé par `dsoxlab run`
+  aurait reçu un projet dont le modèle de menace échoue d'emblée.
 - **`infra/main.tf` passe `terraform validate`** dès V0 : la description
   « SSH d'administration » portait une apostrophe que le provider AWS refuse.

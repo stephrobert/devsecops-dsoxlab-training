@@ -1,0 +1,10 @@
+id: capstone-v06-image-et-iac
+title: "V6, l'image et l'infrastructure : ce qu'on livre au-delà du code"
+description: |
+  notes-api livre une image qui tourne en root, construite depuis une base
+  non épinglée avec des versions recopiées à la main, et une infrastructure
+  qui ouvre SSH au monde et laisse ses buckets sans blocage d'accès public.
+  Ajoutez au pipeline une analyse Trivy bloquante de la configuration et de
+  l'image construite, puis durcissez le Dockerfile (base épinglée,
+  dépendances verrouillées, sans outils de développement, utilisateur sans
+  privilège) et le Terraform jusqu'à ce que les portes passent.

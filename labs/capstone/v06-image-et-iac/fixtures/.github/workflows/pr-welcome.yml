@@ -1,0 +1,30 @@
+name: pr-welcome
+
+# Remercie l'auteur de chaque pull request par un commentaire. Les tests de la
+# contribution tournent dans ci.yml, sur l'événement pull_request, sans jeton
+# en écriture ni secret : ce workflow n'exécute rien de ce que la pull
+# request apporte.
+on:
+  pull_request_target: # zizmor: ignore[dangerous-triggers] aucun checkout, aucun code de la pull request exécuté
+    types: [opened]
+
+permissions: {}
+
+jobs:
+  welcome:
+    name: Accueillir la contribution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      # Le titre est une donnée de l'attaquant : il passe par une variable
+      # d'environnement, jamais par une expression collée dans le script.
+      - name: Remercier l'auteur
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMERO: ${{ github.event.pull_request.number }}
+          TITRE: ${{ github.event.pull_request.title }}
+        run: |
+          gh pr comment "$NUMERO" --body "Merci pour « ${TITRE} », les tests tournent dans la CI."

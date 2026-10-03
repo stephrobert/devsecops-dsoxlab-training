@@ -1,0 +1,52 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v06-image-et-iac
+title: "V6, the image and the infrastructure: what you ship besides the code"
+description: |
+  notes-api ships an image that runs as root, built from an unpinned base
+  with versions copied by hand, and an infrastructure that opens SSH to the
+  world and leaves its buckets without a public access block. Add a blocking
+  Trivy analysis of the configuration and of the built image to the
+  pipeline, then harden the Dockerfile (pinned base, locked dependencies, no
+  dev tools, unprivileged user) and the Terraform until the gates pass.
+section: capstone
+level: capstone
+difficulty: intermediate
+lab_type: lab
+estimated_time: 60m
+skills:
+  - trivy
+  - container-security
+  - iac-scanning
+  - dockerfile
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/securiser/outils/trivy/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V5 : le pipeline audite ses
+  # workflows, mais rien ne regarde encore l'image ni le Terraform.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - .github/workflows/pr-welcome.yml
+    - .github/CODEOWNERS
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - infra/deploy.tf
+    - infra/github-oidc-trust.json
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

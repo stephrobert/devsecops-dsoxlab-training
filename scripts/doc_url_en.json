@@ -5,5 +5,6 @@
   "https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/": "https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/",
   "https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/": "https://blog.stephane-robert.info/en/docs/github-actions/security/oidc/",
   "https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/": "https://blog.stephane-robert.info/en/docs/github-actions/security/zizmor/",
-  "https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/": "https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/"
+  "https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/": "https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/",
+  "https://blog.stephane-robert.info/docs/securiser/outils/trivy/": "https://blog.stephane-robert.info/en/docs/devsecops/containers-iac/trivy/"
 }

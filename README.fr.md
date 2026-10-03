@@ -187,8 +187,9 @@ refuse un lien dans la mauvaise langue.
 | `capstone-v03-sca-et-triage` | V3, analyse des dépendances et triage : corriger ce qui se corrige, dater ce qui ne se corrige pas | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/) |
 | `capstone-v04-identite-sans-secret` | V4, une identité sans secret : OIDC au lieu d'une clé stockée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/) |
 | `capstone-v05-pipeline-durci` | V5, un pipeline durci : workflows audités, pull requests contenues | capstone | shell | [guide](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/) |
+| `capstone-v06-image-et-iac` | V6, l'image et l'infrastructure : ce qu'on livre au-delà du code | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/outils/trivy/) |
 
-_6 labs, table générée par `scripts/gen_catalog.py`._
+_7 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->
 
 ## Contribuer et licence

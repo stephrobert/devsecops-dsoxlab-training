@@ -11,6 +11,7 @@ change to the sensitive paths.
 | Duration | about 50 minutes |
 | Paired lesson | [Auditing your workflows with zizmor](https://blog.stephane-robert.info/en/docs/github-actions/security/zizmor/) |
 | Previous | `capstone-v04-identite-sans-secret` |
+| Next | `capstone-v06-image-et-iac` |
 
 ```bash
 mise install

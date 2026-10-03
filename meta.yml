@@ -45,3 +45,4 @@ sections:
       - capstone/v03-sca-et-triage
       - capstone/v04-identite-sans-secret
       - capstone/v05-pipeline-durci
+      - capstone/v06-image-et-iac

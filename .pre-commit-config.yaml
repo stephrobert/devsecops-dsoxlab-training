@@ -176,6 +176,13 @@ repos:
         pass_filenames: false
         always_run: true
 
+      - id: fixtures-declarees
+        name: chaque fichier de fixtures/ est déclaré dans runtime.fixtures
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_fixtures_declarees.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
       - id: style-apprenant
         name: ni emoji hors des briefs, ni tiret cadratin
         entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_style_apprenant.py -q

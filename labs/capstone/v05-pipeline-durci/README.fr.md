@@ -11,6 +11,7 @@ changement des chemins sensibles.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [Auditer ses workflows avec zizmor](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/) |
 | Précédent | `capstone-v04-identite-sans-secret` |
+| Suivant | `capstone-v06-image-et-iac` |
 
 ```bash
 mise install
