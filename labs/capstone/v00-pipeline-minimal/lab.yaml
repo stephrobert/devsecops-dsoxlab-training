@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v00-pipeline-minimal
+title: "V0, a minimal pipeline: notes-api tested on every push"
+description: |
+  The common thread of the DevSecOps course starts here. notes-api, a small
+  Flask service, has tests but no pipeline. Write the GitHub Actions workflow
+  that installs the locked dependencies and runs the tests on every push and
+  pull request. act plays it locally.
+section: capstone
+level: capstone
+difficulty: beginner
+lab_type: lab
+estimated_time: 30m
+skills:
+  - github-actions
+  - ci
+  - uv
+  - pytest
+# act joue le workflow dans l'image du runner ubuntu-24.04, épinglée par
+# digest dans .actrc : Docker doit répondre.
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ du fil rouge : l'application, ses tests, son verrou,
+  # et ce que les labs suivants corrigeront (Dockerfile, infra/).
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+validation:
+  functional: true
+  security: false
+  persistence_after_reboot: false

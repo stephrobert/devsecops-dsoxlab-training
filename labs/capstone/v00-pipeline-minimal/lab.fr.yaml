@@ -1,0 +1,7 @@
+id: capstone-v00-pipeline-minimal
+title: "V0, un pipeline minimal : notes-api testée à chaque push"
+description: |
+  Le fil rouge de la formation DevSecOps commence ici. notes-api, un petit
+  service Flask, a des tests mais aucun pipeline. Écrivez le workflow GitHub
+  Actions qui installe les dépendances verrouillées et lance les tests à
+  chaque push et à chaque pull request. act le joue sur votre poste.

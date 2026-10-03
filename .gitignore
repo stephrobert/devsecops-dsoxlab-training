@@ -1,0 +1,53 @@
+# --- Secrets et état local : jamais versionnés ---------------------------------
+
+# Le mot de passe qui chiffre solution/ par ansible-vault. Il se transmet de la
+# main à la main ; le committer rendrait le chiffrement vain.
+.vault-pass
+.vault-pass.txt
+
+# Progression et contexte de dsoxlab : propres à chaque machine.
+.dsoxlab.db
+.dsoxlab-context.json
+
+# Clés posées par `dsoxlab instructor bootstrap`.
+ssh/id_ed25519
+ssh/id_rsa
+ssh/*_key
+
+# --- Ce que les labs produisent ------------------------------------------------
+
+# Les répertoires de travail des labs `shell` : ce que l'apprenant y écrit lui
+# appartient, et `dsoxlab run` les recrée.
+labs/**/challenge/work/
+
+# Généré par scripts/verify-solutions.py à chaque rejeu : un artefact, pas une
+# source.
+solution/verified-with.json
+
+# notes-api crée sa base SQLite au premier appel ; act écrit ses journaux.
+*.db
+*.log
+
+# États Terraform que les versions IaC du fil rouge pourraient produire en
+# jouant infra/ : ils portent des identifiants de ressources réelles.
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# --- Python ---------------------------------------------------------------------
+
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --- Le point de départ des labs est TOUJOURS versionné ---------------------------
+
+# Une fixture est livrée telle qu'écrite, y compris un `.gitignore`, un
+# `.python-version` ou un `uv.lock` : aucune règle ci-dessus ne doit en retirer
+# une. Cette exception passe en dernier, pour l'emporter sur toutes les autres.
+!labs/**/fixtures/**

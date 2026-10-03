@@ -1,0 +1,22 @@
+# Traduction française du meta.yml voisin.
+#
+# dsoxlab n'y lit que repo.title, repo.description, sections[].title et
+# sections[].description. Les sections sont appariées par `id`, jamais par
+# position.
+
+repo:
+  title: "Formation DevSecOps : le fil rouge, de V0 à V11"
+  description: |
+    Un seul projet, notes-api, durci version après version au fil de la
+    formation DevSecOps : un pipeline minimal, un modèle de menace, l'analyse
+    de secrets et le SAST bloquants, le tri des dépendances, plus aucun secret
+    statique, un pipeline durci, une image durcie, un artefact signé avec son
+    SBOM, une admission qui refuse ce qui n'est pas signé, la détection au
+    runtime, des exceptions datées, et les métriques de livraison du projet.
+    Chaque version est notée sur l'état du dépôt, jamais sur les commandes
+    tapées.
+
+sections:
+  - id: capstone
+    title: "Le fil rouge : notes-api de V0 à V11"
+    description: "Faire évoluer un seul service, d'un pipeline minimal à une chaîne de livraison signée, admise, surveillée et mesurée, une version par module de la formation DevSecOps."

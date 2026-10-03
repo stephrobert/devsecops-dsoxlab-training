@@ -1,0 +1,12 @@
+# Les outils du catalogue, épinglés. `mise install` les pose à la version
+# mesurée ici, sans curl d'archive ni gestionnaire de paquets système.
+#
+# act joue le pipeline de l'apprenant dans chaque lab du fil rouge, et Docker
+# doit répondre. 0.2.89 au minimum : toute version antérieure à 0.2.86 est
+# vulnérable à CVE-2026-34041 et CVE-2026-34042. uv installe les dépendances
+# verrouillées de notes-api, et Python fait tourner les tests du catalogue.
+
+[tools]
+act = "0.2.89"
+uv = "0.12.21"
+python = "3.14.8"

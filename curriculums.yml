@@ -1,0 +1,132 @@
+# La grille d'objectifs du fil rouge : les pratiques du NIST SSDF.
+#
+# POURQUOI CE FICHIER EXISTE
+#
+# Chaque version du fil rouge met en oeuvre une ou plusieurs pratiques du
+# Secure Software Development Framework (NIST SP 800-218). Le scénario d'un lab
+# le dit en clair : « Pratique SSDF visée : PS.1 (protéger le code contre
+# l'accès non autorisé et l'altération) ». Un code de pratique se trompe aussi
+# facilement qu'un code d'examen : PW.7 (relire le code) et PW.8 (tester
+# l'exécutable) se ressemblent, et un code faux reste un code valide.
+#
+# Les intitulés vivent donc ici une seule fois, avec l'URL d'où ils sont lus et
+# la date de la dernière confrontation. `tests/test_curriculums.py` refuse un
+# code absent de la grille, et un libellé qui contredit celui de la grille.
+#
+# COMMENT LES REVÉRIFIER
+#
+#     curl -sSLO https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf
+#     pdftotext -layout NIST.SP.800-218.pdf - | grep -E '\((PO|PS|PW|RV)\.[0-9]\):'
+#
+# La version 1.1 (février 2022) fait foi. Un projet de version 1.2
+# (SP 800-218r1, publié le 17 décembre 2025, consultation close le 30 janvier
+# 2026) n'a pas de version finale au moment de la dernière vérification : la
+# grille ne bascule pas sur un projet.
+#
+# LA NUMÉROTATION SAUTE PW.3
+#
+# En version 1.1, les deux tâches de PW.3 ont été réparties : PW.3.1 vers
+# PO.1.3 et PW.3.2 vers PW.4.4. Un lab qui citerait PW.3 citerait une pratique
+# qui n'existe plus.
+
+curriculums:
+  ssdf:
+    nom: "NIST SSDF 1.1 (SP 800-218)"
+    source: "https://csrc.nist.gov/pubs/sp/800/218/final"
+    pdf: "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-218.pdf"
+    derniere_verification: 2026-10-03
+    groupes:
+      PO:
+        en: "Prepare the Organization"
+        fr: "Préparer l'organisation"
+      PS:
+        en: "Protect the Software"
+        fr: "Protéger le logiciel"
+      PW:
+        en: "Produce Well-Secured Software"
+        fr: "Produire un logiciel bien sécurisé"
+      RV:
+        en: "Respond to Vulnerabilities"
+        fr: "Répondre aux vulnérabilités"
+    pratiques:
+      PO.1:
+        en: "Define Security Requirements for Software Development"
+        fr: "définir les exigences de sécurité du développement"
+      PO.2:
+        en: "Implement Roles and Responsibilities"
+        fr: "mettre en place les rôles et responsabilités"
+      PO.3:
+        en: "Implement Supporting Toolchains"
+        fr: "mettre en place la chaîne d'outils"
+      PO.4:
+        en: "Define and Use Criteria for Software Security Checks"
+        fr: "définir et appliquer les critères des contrôles de sécurité"
+      PO.5:
+        en: "Implement and Maintain Secure Environments for Software Development"
+        fr: "sécuriser les environnements de développement"
+      PS.1:
+        en: "Protect All Forms of Code from Unauthorized Access and Tampering"
+        fr: "protéger le code contre l'accès non autorisé et l'altération"
+      PS.2:
+        en: "Provide a Mechanism for Verifying Software Release Integrity"
+        fr: "permettre de vérifier l'intégrité des versions publiées"
+      PS.3:
+        en: "Archive and Protect Each Software Release"
+        fr: "archiver et protéger chaque version publiée"
+      PW.1:
+        en: "Design Software to Meet Security Requirements and Mitigate Security Risks"
+        fr: "concevoir pour répondre aux exigences et réduire les risques"
+      PW.2:
+        en: "Review the Software Design to Verify Compliance with Security Requirements and Risk Information"
+        fr: "relire la conception au regard des exigences et des risques"
+      PW.4:
+        en: "Reuse Existing, Well-Secured Software When Feasible Instead of Duplicating Functionality"
+        fr: "réutiliser des composants sûrs plutôt que les réécrire"
+      PW.5:
+        en: "Create Source Code by Adhering to Secure Coding Practices"
+        fr: "écrire le code selon des pratiques de codage sûr"
+      PW.6:
+        en: "Configure the Compilation, Interpreter, and Build Processes to Improve Executable Security"
+        fr: "configurer la compilation et le build pour durcir l'exécutable"
+      PW.7:
+        en: "Review and/or Analyze Human-Readable Code to Identify Vulnerabilities and Verify Compliance with Security Requirements"
+        fr: "relire ou analyser le code source pour y trouver les vulnérabilités"
+      PW.8:
+        en: "Test Executable Code to Identify Vulnerabilities and Verify Compliance with Security Requirements"
+        fr: "tester l'exécutable pour y trouver les vulnérabilités"
+      PW.9:
+        en: "Configure Software to Have Secure Settings by Default"
+        fr: "configurer le logiciel sûr par défaut"
+      RV.1:
+        en: "Identify and Confirm Vulnerabilities on an Ongoing Basis"
+        fr: "identifier et confirmer les vulnérabilités en continu"
+      RV.2:
+        en: "Assess, Prioritize, and Remediate Vulnerabilities"
+        fr: "évaluer, prioriser et corriger les vulnérabilités"
+      RV.3:
+        en: "Analyze Vulnerabilities to Identify Their Root Causes"
+        fr: "analyser les vulnérabilités pour en trouver les causes racines"
+
+# Les fragments qu'un libellé de lab doit contenir pour ne pas contredire la
+# grille, comparés sans accents ni casse. Ils sont courts exprès : le test
+# refuse une contradiction, il ne note pas la rédaction.
+mots_cles:
+  PO.1: ["exigence", "requirement"]
+  PO.2: ["role", "responsab"]
+  PO.3: ["outil", "toolchain", "chaine"]
+  PO.4: ["critere", "criteria", "controle", "check"]
+  PO.5: ["environnement", "environment"]
+  PS.1: ["code", "alter", "tamper", "acces", "access"]
+  PS.2: ["integrit", "verif"]
+  PS.3: ["archiv"]
+  PW.1: ["concevoir", "conception", "design", "risque", "risk"]
+  PW.2: ["conception", "design", "relire", "review"]
+  PW.4: ["reutilis", "reuse", "composant", "component"]
+  PW.5: ["codage", "coding", "code"]
+  PW.6: ["build", "compil"]
+  PW.7: ["code source", "source code", "analys", "relire", "review"]
+  PW.8: ["test", "executable"]
+  PW.9: ["defaut", "default"]
+  RV.1: ["identifier", "identify", "continu", "ongoing"]
+  RV.2: ["prioris", "prioritiz", "corrig", "remediat"]
+  RV.3: ["cause", "racine", "root"]

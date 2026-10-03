@@ -1,0 +1,42 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/meta.schema.json
+#
+# Catalogue devsecops-dsoxlab-training, décrit par le contrat v1 de dsoxlab.
+#
+# Le capstone de la formation DevSecOps du blog, écrit comme un FIL ROUGE :
+# un seul projet, notes-api, qui gagne une version par module, de V0 (un
+# pipeline minimal) à V11 (des métriques DORA). Le point de départ d'un lab
+# est la solution du précédent : l'ordre ci-dessous est celui du jeu, et il ne
+# se réordonne pas.
+#
+# Plan complet : curriculums.yml, une version par module de la formation.
+#
+# tests/test_meta_declare_les_labs.py refuse un lab sur disque absent d'ici,
+# et un lab déclaré ici absent du disque : un lab entre dans cette liste le
+# jour où il est écrit, pas avant.
+schema_version: 1
+
+repo:
+  id: devsecops-dsoxlab-training
+  category: devsecops
+  title: "DevSecOps Training: the common thread, from V0 to V11"
+  blog_url: "https://blog.stephane-robert.info/docs/devops/"
+  issues_url: "https://github.com/stephrobert/devsecops-dsoxlab-training/issues"
+  description: |
+    One project, notes-api, hardened version after version as the DevSecOps
+    course goes on: a minimal pipeline, a threat model, blocking secret
+    scanning and SAST, dependency triage, no static secrets, a hardened
+    pipeline, a hardened image, a signed artifact with its SBOM, an admission
+    that refuses what is unsigned, runtime detection, dated exceptions, and
+    the project's own delivery metrics. Each version is graded on the state
+    of the repository, never on the commands typed.
+
+# PAS de bloc `infra:` pour les premières versions : elles se jouent sur le
+# poste de l'apprenant, avec act et Docker. Les versions qui demandent un
+# cluster ou une VM (V8, V9) ajouteront leur topologie.
+
+sections:
+  - id: capstone
+    title: "The common thread: notes-api from V0 to V11"
+    description: "Evolve a single service from a minimal pipeline to a signed, admitted, monitored and measured delivery chain, one version per module of the DevSecOps course."
+    labs:
+      - capstone/v00-pipeline-minimal

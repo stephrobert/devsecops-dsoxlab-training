@@ -1,0 +1,202 @@
+# Hooks pre-commit d'un dépôt de CONTENU (catalogue de labs). Arrêt net sur les
+# secrets et les clés privées, et sur les fichiers générés. Pas de mypy : il n'y
+# a pas de source de paquet, et le contrat déclaratif est validé par
+# `dsoxlab validate-structure`.
+#
+# Installation, une fois :   pre-commit install --install-hooks
+# Sur tout le dépôt :        pre-commit run --all-files
+#
+# Aligné sur les trois autres catalogues (kubernetes, linux, ansible), avec deux
+# différences que ce dépôt impose :
+#
+#   - il porte 421 fichiers `.tf`, tous formatés au 2026-09-17 : le hook `fmt`
+#     protège cette propriété plutôt que de l'imposer après coup ;
+#   - ses labs sont en `runtime: shell` et n'ont ni `setup.yaml` ni
+#     `cleanup.yaml`, donc aucun hook Ansible n'a d'objet ici.
+
+minimum_pre_commit_version: "3.5.0"
+default_install_hook_types: [pre-commit, pre-push]
+
+# Deux répertoires que les hooks ne doivent NI lire NI réécrire.
+#
+# `solution/` contient les solutions de référence, chiffrées par ansible-vault.
+# C'est du chiffré, pas du source : `end-of-file-fixer` et `trailing-whitespace`
+# corrompraient la charge vault de façon irréversible, et ruff échoue d'emblée
+# sur un .py chiffré.
+#
+# `labs/**/fixtures/` porte le point de départ de l'apprenant, au caractère
+# près : le projet notes-api tel qu'une version le reçoit, défauts volontaires
+# compris, et son `uv.lock`. Un hook qui reformaterait une fixture changerait
+# ce que le lab mesure. Constat repris du catalogue Terraform, le 2026-09-17 :
+# `end-of-file-fixer` y avait allongé d'un caractère un mot de passe qu'un test
+# comparait exactement. Une fixture se livre telle qu'elle a été écrite.
+exclude: '^(solution/|labs/.*/fixtures/)'
+
+repos:
+  # Hygiène générale, et arrêt net sur les secrets et les clés privées.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '(^LICENSE$|\.md$)'
+      - id: end-of-file-fixer
+        exclude: '^LICENSE$'
+      - id: check-yaml # valide chaque lab.yaml et meta.yml
+      - id: check-json
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-added-large-files
+        args: ['--maxkb=2048']
+      - id: detect-private-key # bloque une clé SSH privée commitée
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff (lint du python des labs)
+        entry: uvx ruff check --fix
+        language: system
+        types_or: [python, pyi]
+        require_serial: true
+
+      # --no-update : ne jamais aller chercher un binaire neuf au moment du
+      # hook, c'est un durcissement de la chaîne d'approvisionnement.
+      - id: trufflehog
+        name: trufflehog (scan de secrets)
+        entry: trufflehog git file://. --since-commit HEAD --results=verified --fail --no-update
+        language: system
+        pass_filenames: false
+
+      # Une solution ne doit jamais partir en clair : cela gâche le lab, et git
+      # la garde pour toujours. L'en-tête ansible-vault est la preuve du
+      # chiffrement, on la lit plutôt que de faire confiance à l'auteur.
+      #
+      # Ce vérificateur existait déjà dans le dépôt sans être câblé nulle part :
+      # il ne protégeait donc plus rien, en silence.
+      # Le catalogue des README doit lister TOUS les labs avec l'URL de leur
+      # guide. Il est généré depuis les vrais lab.yaml : un catalogue périmé
+      # bloque le push.
+      #
+      # `--no-project` : environnement éphémère avec juste pyyaml, pour que uv
+      # ne crée ni ne synchronise le venv du dépôt afin de lancer un script de
+      # catalogue.
+      - id: catalogue-a-jour
+        name: le catalogue des README est à jour (labs + URLs de guides)
+        entry: uv run --no-project --with pyyaml python scripts/gen_catalog.py --check
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+
+      - id: solutions-chiffrees
+        name: les solutions restent chiffrées par ansible-vault
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_solutions_chiffrees.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # LES HUIT VÉRIFICATEURS QUI NE PROTÉGEAIENT RIEN
+      #
+      # Constat repris du catalogue Terraform, le 2026-09-25 : neuf vérificateurs
+      # dans `tests/` et un seul câblé à un hook. Les huit autres ne tournaient que si
+      # quelqu'un lançait `pytest tests/` à la main, c'est-à-dire jamais pendant
+      # un commit. C'est pire que de ne pas les avoir : on les croit en poste.
+      #
+      # `tests/test_outillage_coherent.py` empêche désormais le défaut de
+      # revenir, en exigeant que chaque test soit câblé ici ou recensé avec sa
+      # raison.
+      - id: briefs-pointent-juste
+        name: un énoncé ne cite aucun chemin inexistant
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_briefs_pointent_juste.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: curriculums-coherents
+        name: une pratique SSDF citée existe dans la grille et y garde son sens
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_curriculums.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: schemas-dsoxlab
+        name: chaque lab.yaml et meta.yml respectent le schéma de dsoxlab
+        entry: uv run --no-project --with pytest --with pyyaml --with jsonschema pytest tests/test_schemas_dsoxlab.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: indices-ecrits
+        name: les indices ne sont pas restés au gabarit du générateur
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_hints_ecrits.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: langue-officielle
+        name: aucun fichier de lecture n'est resté au gabarit
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_langue_officielle.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: maturite-des-labs
+        name: un squelette ne passe pas pour un lab qui prouve quelque chose
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_maturite_des_labs.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: script-de-solution
+        name: un solution.sh laisse sa trace et disparaît du workdir
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_script_de_solution.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: meta-declare-les-labs
+        name: tout lab livré est déclaré dans meta.yml, et réciproquement
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_meta_declare_les_labs.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: liens-internes
+        name: les liens relatifs des Markdown mènent quelque part
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_liens_internes.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: liens-par-langue
+        name: un lien vers un guide pointe sur la version dans la langue du fichier
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_liens_par_langue.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: style-apprenant
+        name: ni emoji hors des briefs, ni tiret cadratin
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_style_apprenant.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: outillage-coherent
+        name: chaque vérificateur est câblé, chaque hook pointe un test réel
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_outillage_coherent.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      # Le contrat du catalogue, au push : `validate-structure` lit meta.yml,
+      # chaque lab.yaml, chaque fixture déclarée et chaque lien relatif des
+      # README. Il attrape ce qu'aucun test local ne voit.
+      - id: contrat-du-catalogue
+        name: dsoxlab validate-structure
+        entry: uvx dsoxlab validate-structure
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

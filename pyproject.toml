@@ -1,0 +1,99 @@
+[project]
+name = "devsecops-dsoxlab-training"
+version = "0.1.0"
+description = "Fil rouge de la formation DevSecOps : fournisseur de labs pour la CLI dsoxlab"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.ruff]
+# Les règles sont fixées ICI, et c'est le point important. Les hooks et la CI
+# appellent `uvx ruff`, qui prend la DERNIÈRE version publiée : sans jeu de
+# règles écrit dans le dépôt, ce que ruff juge change le jour où ruff change
+# d'avis, et le job « parité pre-commit » de la CI cesse de prouver ce qu'il
+# annonce. Le cas n'est pas théorique : ruff 0.16 a élargi son jeu par défaut
+# par rapport aux E4/E7/E9/F historiques.
+#
+# Jeu repris du catalogue Kubernetes, à l'identique : ces quatre dépôts se
+# relisent les uns les autres, et un contributeur qui passe de l'un à l'autre
+# ne doit pas avoir à réapprendre ce qui est accepté.
+target-version = "py311"
+# `labs/**/fixtures/` est le point de départ que l'apprenant reçoit, défauts
+# volontaires compris (l'injection SQL de notes-api est ce que V2 fait corriger),
+# et `challenge/work` ce qu'il écrit : le lint du catalogue n'y touche pas.
+exclude = [
+    "labs/**/fixtures",
+    "labs/**/challenge/work",
+]
+
+[tool.ruff.lint]
+select = [
+    "E4", "E7", "E9", "F",  # les défauts de ruff : erreurs réelles
+    "I",    # imports triés
+    "UP",   # tournures dépassées pour la version cible
+    "B",    # bugbear : les pièges qui se paient à l'exécution
+    "BLE",  # except nu : une exception avalée se paie plus tard
+    "SIM",  # simplifications lisibles
+    "RUF",  # règles propres à ruff
+    "EXE",  # shebang et bit d'exécution cohérents
+    "DTZ",  # dates sans fuseau : elles changent de valeur selon la machine
+    "PLE", "PLW",  # erreurs et avertissements pylint
+    "S",    # bandit, la lecture sécurité
+]
+ignore = [
+    # E501 (ligne trop longue) n'est pas retenue : les messages d'assertion de
+    # ce dépôt enseignent, et les couper à 88 colonnes les rendrait moins
+    # lisibles, pas plus.
+    "E501",
+    # S101 : `assert` est le verbe de pytest. L'interdire dans un dépôt dont le
+    # contenu est fait de tests n'aurait aucun sens.
+    "S101",
+    # S603 et S607 : appeler un sous-processus, et le nommer sans chemin
+    # absolu, est le métier de ce dépôt. `act`, `docker` et `git` viennent du
+    # PATH, délibérément : c'est ainsi que l'apprenant les appelle.
+    "S603", "S607",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Les tests de labs lisent des sorties de commandes et comparent des valeurs
+# nommées par le sujet : les extraire en constantes éloignerait le chiffre de
+# ce qu'il mesure.
+"labs/**/test_functional.py" = ["PLR2004"]
+
+[tool.pytest.ini_options]
+# Le contrat dsoxlab impose que chaque lab nomme son test
+# challenge/tests/test_functional.py. Tous ces fichiers partagent le même
+# basename dans des répertoires sans __init__.py : le mode d'import « prepend »
+# les prendrait pour un seul module et échouerait en « import file mismatch ».
+# importlib les isole par leur chemin.
+addopts = "--import-mode=importlib"
+
+# Ne collecter QUE les tests des challenges. Tout `test_*.py` ailleurs sous
+# labs/ (fixtures, artefacts pédagogiques) n'est pas un test du catalogue.
+testpaths = ["labs"]
+norecursedirs = [
+    "solution", "*.egg", ".git", ".venv",
+]
+
+[tool.uv]
+# Ce dépôt n'est pas un package Python : c'est un fournisseur de labs.
+package = false
+
+[dependency-groups]
+# dsoxlab n'est PAS déclaré ici, et c'est délibéré : c'est un OUTIL, pas une
+# dépendance de ce dépôt. Il s'installe à part, et la CI comme les hooks
+# l'appellent ainsi :
+#     uv tool install dsoxlab      # ou : uvx dsoxlab <commande>
+#
+# Le garder en dev-dep avait deux coûts. Dependabot ouvrait une PR à chaque
+# version de la CLI sur un dépôt qui ne l'embarque pas, et le catalogue Linux
+# jumeau, qui le déclare en source chemin local (`../dsoxlab`), rend son verrou
+# irrésoluble partout où ce répertoire manque, CI comprise. C'est la règle
+# commune aux cinq dépôts, et `ci.yml` la supposait déjà acquise.
+#
+# Le dépôt ne garde que ce dont ses propres vérificateurs ont besoin : lire des
+# YAML, et les exécuter.
+dev = [
+    "pyyaml>=6",
+    "pytest>=8",
+    "jsonschema>=4",
+]
