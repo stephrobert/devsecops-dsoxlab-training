@@ -11,6 +11,7 @@ rôle que seule la branche main peut endosser.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [OIDC : s'authentifier sans secret](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/) |
 | Précédent | `capstone-v03-sca-et-triage` |
+| Suivant | `capstone-v05-pipeline-durci` |
 
 ```bash
 mise install

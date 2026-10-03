@@ -11,6 +11,7 @@ the main branch can assume.
 | Duration | about 50 minutes |
 | Paired lesson | [OIDC: authenticating without a secret](https://blog.stephane-robert.info/en/docs/github-actions/security/oidc/) |
 | Previous | `capstone-v03-sca-et-triage` |
+| Next | `capstone-v05-pipeline-durci` |
 
 ```bash
 mise install

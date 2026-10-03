@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests de notes-api
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Les portes de sécurité passent avant tout le reste : un secret, une
+      # injection ou une dépendance vulnérable ne doivent pas attendre la fin
+      # des tests pour arrêter la branche. Images épinglées par digest, relevé
+      # le 2026-10-03.
+      - name: Chercher les secrets
+        uses: docker://zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f
+        with:
+          args: dir . --redact --exit-code 1
+
+      - name: Analyse statique du code
+        uses: docker://semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
+        with:
+          args: semgrep scan --config p/python --error --metrics=off .
+
+      # osv-scanner lit uv.lock et confronte chaque version à la base OSV. Il
+      # sort en échec sur toute vulnérabilité connue, sauf celles que
+      # osv-scanner.toml accepte, avec une raison et une date d'expiration.
+      - name: Analyser les dépendances
+        uses: docker://ghcr.io/google/osv-scanner:v2.6.0@sha256:afd838850ac1a0fcc15ff4a041dc9ba11123c3f0d2666217a5f0fcf9222b55fa
+        with:
+          args: scan source -r .
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+
+      - name: Installer les dépendances verrouillées
+        run: uv sync --locked
+
+      - name: Vérifier le modèle de menace
+        run: uv run python scripts/check_threat_model.py threat-model.yml
+
+      - name: Lancer les tests
+        run: uv run pytest
+
+  # Publie l'archive de notes-api dans le bucket des versions, après les tests,
+  # à chaque push sur main, et seulement là : ni une branche de travail ni une
+  # pull request ne publient.
+  deploy:
+    name: Publier notes-api
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Le seul job qui peut demander un jeton OIDC. GitHub le signe pour CE
+    # dépôt et CETTE branche ; AWS l'échange contre des identifiants valables
+    # une heure, pour le rôle qui n'accepte que main.
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: S'authentifier auprès d'AWS
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/notes-api-ci-deploy
+          aws-region: eu-west-3
+
+      - name: Publier l'archive
+        run: |
+          tar czf notes-api.tgz src pyproject.toml uv.lock
+          aws s3 cp notes-api.tgz "s3://notes-api-releases/notes-api-${GITHUB_SHA}.tgz"

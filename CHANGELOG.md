@@ -71,5 +71,16 @@ this catalog, the version of the common thread.
   review planned, by moving the signature check to `cryptography`. Proven
   both ways, then against four faulty variants that each lose only the
   targeted check.
+- **`capstone-v05-pipeline-durci`**: the pipeline audits every workflow before
+  the tests, actionlint 1.7.12 for syntax then zizmor 1.30.1 for security,
+  both blocking. A welcome workflow on `pull_request_target`, which checked
+  out and ran the proposed code and pasted the title into a script, is
+  rewritten to run nothing from the pull request; CODEOWNERS, evaluated the
+  way GitHub does (last match wins), sends the workflows, the infrastructure
+  and the security decisions to `@acme/security`. The booby-trapped copy is a
+  pwn request that only zizmor sees: a first version used a template
+  injection, which actionlint also reports, so the pipeline turned red even
+  with a zizmor that did not block. Proven both ways, then against four
+  faulty variants.
 - **`infra/main.tf` passes `terraform validate`** from V0 on: the description
   "SSH d'administration" contained an apostrophe the AWS provider refuses.

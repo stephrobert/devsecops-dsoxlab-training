@@ -1,0 +1,37 @@
+name: pr-welcome
+
+# Accueille chaque pull request : lance les tests de la contribution et
+# remercie son auteur par un commentaire. pull_request_target, parce que le
+# commentaire demande un jeton en écriture, y compris pour une pull request
+# venue d'un fork.
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  welcome:
+    name: Accueillir la contribution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Récupérer la branche proposée
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Installer uv
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+
+      - name: Lancer les tests de la contribution
+        run: uv sync --locked && uv run pytest
+
+      - name: Remercier l'auteur
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "Merci pour « ${{ github.event.pull_request.title }} », les tests passent."

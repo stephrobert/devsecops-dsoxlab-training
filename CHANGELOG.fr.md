@@ -73,5 +73,17 @@ pour ce catalogue, la version du fil rouge.
   l'exception Minerva de V3 comme sa revue le prévoyait, en passant la
   vérification de signature à `cryptography`. Éprouvé dans les deux sens, puis
   contre quatre variantes fautives qui perdent chacune le seul contrôle visé.
+- **`capstone-v05-pipeline-durci`** : le pipeline audite chaque workflow avant
+  les tests, actionlint 1.7.12 pour la syntaxe puis zizmor 1.30.1 pour la
+  sécurité, tous deux bloquants. Un workflow d'accueil sur
+  `pull_request_target`, qui récupérait et exécutait le code proposé et
+  collait le titre dans un script, est réécrit pour ne rien exécuter de la
+  pull request ; CODEOWNERS, évalué comme GitHub le fait (la dernière ligne
+  l'emporte), confie les workflows, l'infrastructure et les décisions de
+  sécurité à `@acme/security`. La copie piégée est une pull request que seul
+  zizmor voit : une première version employait une injection de template,
+  qu'actionlint signale aussi, et le pipeline devenait rouge même avec un
+  zizmor qui ne bloquait pas. Éprouvé dans les deux sens, puis contre quatre
+  variantes fautives.
 - **`infra/main.tf` passe `terraform validate`** dès V0 : la description
   « SSH d'administration » portait une apostrophe que le provider AWS refuse.

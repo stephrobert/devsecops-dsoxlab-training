@@ -1,0 +1,51 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v05-pipeline-durci
+title: "V5, a hardened pipeline: workflows audited, pull requests contained"
+description: |
+  A new workflow welcomes each pull request: it runs on pull_request_target,
+  checks out the proposed code and runs it with a write token, and pastes the
+  title into a shell script. Add an audit of every workflow to the pipeline,
+  zizmor for security and actionlint for syntax, both blocking; rewrite the
+  welcome workflow so it executes nothing from the pull request; and require
+  the security team's review on the workflows, the infrastructure and the
+  security decisions with CODEOWNERS.
+section: capstone
+level: capstone
+difficulty: intermediate
+lab_type: lab
+estimated_time: 50m
+skills:
+  - zizmor
+  - actionlint
+  - codeowners
+  - github-actions
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V4, plus un workflow d'accueil des
+  # pull requests qui exécute le code proposé dans un déclencheur privilégié.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - .github/workflows/pr-welcome.yml
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - infra/deploy.tf
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

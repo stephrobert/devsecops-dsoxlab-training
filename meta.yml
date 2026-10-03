@@ -44,3 +44,4 @@ sections:
       - capstone/v02-secrets-et-sast
       - capstone/v03-sca-et-triage
       - capstone/v04-identite-sans-secret
+      - capstone/v05-pipeline-durci

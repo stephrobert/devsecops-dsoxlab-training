@@ -1,0 +1,11 @@
+id: capstone-v05-pipeline-durci
+title: "V5, un pipeline durci : workflows audités, pull requests contenues"
+description: |
+  Un nouveau workflow accueille chaque pull request : il tourne sur
+  pull_request_target, récupère le code proposé et l'exécute avec un jeton en
+  écriture, et colle le titre dans un script shell. Ajoutez au pipeline un
+  audit de chaque workflow, zizmor pour la sécurité et actionlint pour la
+  syntaxe, tous deux bloquants ; réécrivez le workflow d'accueil pour qu'il
+  n'exécute rien de la pull request ; et imposez la revue de l'équipe
+  sécurité sur les workflows, l'infrastructure et les décisions de sécurité
+  avec CODEOWNERS.
