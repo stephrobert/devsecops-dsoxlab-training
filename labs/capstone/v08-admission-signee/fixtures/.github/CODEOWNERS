@@ -1,0 +1,12 @@
+# Who must approve a change, path by path. The last matching line wins.
+#
+# The workflows, the infrastructure and the security decisions run with the
+# repository's privileges or record what the team accepted: a change there
+# needs the security team, whoever wrote it.
+
+*                       @acme/notes-api
+
+/.github/               @acme/security
+/infra/                 @acme/security
+/osv-scanner.toml       @acme/security
+/threat-model.yml       @acme/security

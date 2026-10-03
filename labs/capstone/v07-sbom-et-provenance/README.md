@@ -11,6 +11,7 @@ script refuses to deploy one that the main pipeline did not build.
 | Duration | about 55 minutes |
 | Paired lesson | [From SLSA provenance to a decision](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/) |
 | Previous | `capstone-v06-image-et-iac` |
+| Next | `capstone-v08-admission-signee` |
 
 ```bash
 mise install

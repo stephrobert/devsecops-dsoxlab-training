@@ -549,3 +549,191 @@ def references_uses(depot: Path) -> list[ReferenceUses]:
                 )
             )
     return refs
+
+
+# ── Un cluster kind jetable, avec registre interne et Kyverno (V8 et suivantes) ─
+#
+# À partir de V8, notes-api se déploie. Les tests montent un cluster kind
+# Kubernetes 1.37, un registre joignable sous le nom `registry.notes.internal`
+# depuis les nœuds ET depuis les Pods (alias sur le réseau Docker `kind`), et
+# Kyverno. Ils y appliquent les politiques de l'apprenant, puis demandent
+# l'admission de Pods en `--dry-run=server` : Kyverno juge la demande, rien ne
+# se crée, aucune image n'est tirée.
+#
+# Mesuré le 2026-10-03 : cosign 3.1 écrit par défaut sa signature au nouveau
+# format de bundle, que Kyverno 1.19.1 ne trouve pas (« no signatures found »).
+# Le banc signe donc avec `--new-bundle-format=false`, le format que Kyverno lit.
+
+REGISTRE_INTERNE = "registry.notes.internal:5000"
+NOEUD_KIND = "kindest/node:v1.37.0@sha256:a1ed56cfb0e7b93589bdf97c8cd566405a265939e3620fc4f5de89adff580ae5"
+IMAGE_REGISTRE = "registry:3@sha256:ddf754342cfc8acc51a56d5d0ab6af06826461864460636d8bd5c546dab2a7b8"
+IMAGE_BASE_BANC = "busybox:1.37@sha256:bdf57e528e45e4433820e045b29b4597825a1c9e38353532d90a01445013f82e"
+CHART_KYVERNO = "oci://ghcr.io/kyverno/charts/kyverno"
+VERSION_CHART_KYVERNO = "3.9.1"  # Kyverno 1.19.1
+
+CONFIG_KIND = """\
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+containerdConfigPatches:
+  - |-
+    [plugins."io.containerd.grpc.v1.cri".registry]
+      config_path = "/etc/containerd/certs.d"
+"""
+
+
+def _port_libre() -> int:
+    import socket
+
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+def _ou_echouer(res: subprocess.CompletedProcess[str], quoi: str) -> str:
+    if res.returncode != 0:
+        pytest.fail(f"{quoi} a échoué (code {res.returncode}) :\n{(res.stdout + res.stderr)[-1500:]}")
+    return res.stdout
+
+
+@dataclass
+class BancKind:
+    """Un cluster kind, son registre interne et Kyverno, détruits à la sortie."""
+
+    nom: str
+    dossier: Path
+    port: int
+    kubeconfig: Path
+    cles: dict[str, Path] = field(default_factory=dict)
+
+    def kubectl(self, *args: str, entree: str | None = None, timeout: int = 120) -> subprocess.CompletedProcess[str]:
+        return executer(["kubectl", "--kubeconfig", str(self.kubeconfig), *args], entree=entree, timeout=timeout)
+
+    def appliquer(self, manifeste: str) -> None:
+        _ou_echouer(self.kubectl("apply", "-f", "-", entree=manifeste), "kubectl apply")
+
+    def attendre_politiques(self, timeout: int = 120) -> None:
+        """Attend que chaque politique Kyverno ait son webhook configuré."""
+        for ressource in ("validatingpolicies", "imagevalidatingpolicies"):
+            noms = self.kubectl("get", ressource, "-o", "name").stdout.split()
+            for nom in noms:
+                _ou_echouer(
+                    self.kubectl(
+                        "wait", nom, "--for=jsonpath={.status.conditionStatus.ready}=true",
+                        f"--timeout={timeout}s", timeout=timeout + 10,
+                    ),
+                    f"l'attente de {nom}",
+                )
+
+    def cle(self, nom: str) -> tuple[Path, str]:
+        """Une paire de clés cosign éphémère : (clé privée, clé publique PEM)."""
+        if nom not in self.cles:
+            prefixe = self.dossier / nom
+            _ou_echouer(
+                executer(
+                    ["cosign", "generate-key-pair", "--output-key-prefix", str(prefixe)],
+                    env={"COSIGN_PASSWORD": ""}, timeout=60,
+                ),
+                "cosign generate-key-pair",
+            )
+            self.cles[nom] = prefixe
+        prefixe = self.cles[nom]
+        return prefixe.with_suffix(".key"), prefixe.with_suffix(".pub").read_text(encoding="utf-8")
+
+    def pousser_image(self, depot: str, variante: str, signer_avec: str | None = None) -> str:
+        """Construit une petite image distincte, la pousse, la signe si demandé.
+
+        Rend la référence par digest, sous le nom du registre interne.
+        """
+        contexte = self.dossier / f"image-{variante}"
+        contexte.mkdir(exist_ok=True)
+        (contexte / "Dockerfile").write_text(f"FROM {IMAGE_BASE_BANC}\nLABEL variante={variante}\n", encoding="utf-8")
+        locale = f"127.0.0.1:{self.port}/{depot}:{variante}"
+        _ou_echouer(executer(["docker", "build", "-q", "-t", locale, str(contexte)], timeout=300), "docker build")
+        _ou_echouer(executer(["docker", "push", "-q", locale], timeout=300), "docker push")
+        inspect = _ou_echouer(executer(["docker", "buildx", "imagetools", "inspect", locale], timeout=60), "imagetools")
+        digest = re.search(r"^Digest:\s+(sha256:[0-9a-f]{64})", inspect, re.M).group(1)
+        if signer_avec:
+            cle_privee, _ = self.cle(signer_avec)
+            _ou_echouer(
+                executer(
+                    [
+                        "cosign", "sign", "--yes", "--key", str(cle_privee),
+                        "--new-bundle-format=false", "--use-signing-config=false",
+                        "--tlog-upload=false", "--allow-insecure-registry",
+                        f"127.0.0.1:{self.port}/{depot}@{digest}",
+                    ],
+                    env={"COSIGN_PASSWORD": ""}, timeout=120,
+                ),
+                "cosign sign",
+            )
+        return f"{REGISTRE_INTERNE}/{depot}@{digest}"
+
+    def admettre(self, namespace: str, nom: str, image: str) -> tuple[bool, str]:
+        """Demande l'admission d'un Pod, sans le créer. (admis, message)"""
+        res = self.kubectl(
+            "-n", namespace, "run", nom, f"--image={image}", "--restart=Never",
+            "--dry-run=server", "-o", "name", timeout=60,
+        )
+        return res.returncode == 0, (res.stdout + res.stderr).strip()
+
+
+@contextlib.contextmanager
+def banc_kind_kyverno(prefixe: str = "fil-rouge") -> Iterator[BancKind]:
+    """Monte kind + registre interne + Kyverno, et détruit tout à la sortie."""
+    for outil in ("docker", "kind", "kubectl", "helm", "cosign"):
+        exiger_outil(outil)
+    import secrets as _secrets
+
+    suffixe = _secrets.token_hex(3)
+    nom = f"{prefixe}-{suffixe}"
+    registre = f"{nom}-registre"
+    with tempfile.TemporaryDirectory(prefix="banc-kind-") as tmp:
+        dossier = Path(tmp)
+        banc = BancKind(nom=nom, dossier=dossier, port=_port_libre(), kubeconfig=dossier / "kubeconfig")
+        try:
+            _ou_echouer(
+                executer(
+                    ["docker", "run", "-d", "-p", f"127.0.0.1:{banc.port}:5000", "--name", registre, IMAGE_REGISTRE],
+                    timeout=180,
+                ),
+                "le démarrage du registre",
+            )
+            (dossier / "kind.yaml").write_text(CONFIG_KIND, encoding="utf-8")
+            _ou_echouer(
+                executer(
+                    [
+                        "kind", "create", "cluster", "--name", nom, "--image", NOEUD_KIND,
+                        "--config", str(dossier / "kind.yaml"), "--kubeconfig", str(banc.kubeconfig),
+                        "--wait", "120s",
+                    ],
+                    timeout=400,
+                ),
+                "kind create cluster",
+            )
+            hote = REGISTRE_INTERNE.split(":")[0]
+            _ou_echouer(
+                executer(["docker", "network", "connect", "--alias", hote, "kind", registre], timeout=60),
+                "le raccordement du registre au réseau kind",
+            )
+            for noeud in executer(["kind", "get", "nodes", "--name", nom], timeout=60).stdout.split():
+                dossier_hote = f"/etc/containerd/certs.d/{REGISTRE_INTERNE}"
+                executer(["docker", "exec", noeud, "mkdir", "-p", dossier_hote], timeout=60)
+                executer(
+                    ["docker", "exec", "-i", noeud, "cp", "/dev/stdin", f"{dossier_hote}/hosts.toml"],
+                    entree=f'[host."http://{REGISTRE_INTERNE}"]\n', timeout=60,
+                )
+            _ou_echouer(
+                executer(
+                    [
+                        "helm", "install", "kyverno", CHART_KYVERNO, "--version", VERSION_CHART_KYVERNO,
+                        "--kubeconfig", str(banc.kubeconfig), "-n", "kyverno", "--create-namespace",
+                        "--set", "features.registryClient.allowInsecure=true", "--wait", "--timeout", "6m",
+                    ],
+                    timeout=420,
+                ),
+                "l'installation de Kyverno",
+            )
+            yield banc
+        finally:
+            executer(["kind", "delete", "cluster", "--name", nom], timeout=300)
+            executer(["docker", "rm", "-f", registre], timeout=120)

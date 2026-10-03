@@ -11,6 +11,7 @@ script refuse d'en déployer une que le pipeline de main n'a pas construite.
 | Durée | environ 55 minutes |
 | Leçon jumelée | [De la provenance SLSA à la décision](https://blog.stephane-robert.info/docs/securiser/supply-chain/attestations/slsa-provenance-decision/) |
 | Précédent | `capstone-v06-image-et-iac` |
+| Suivant | `capstone-v08-admission-signee` |
 
 ```bash
 mise install

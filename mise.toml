@@ -5,8 +5,16 @@
 # doit répondre. 0.2.89 au minimum : toute version antérieure à 0.2.86 est
 # vulnérable à CVE-2026-34041 et CVE-2026-34042. uv installe les dépendances
 # verrouillées de notes-api, et Python fait tourner les tests du catalogue.
+#
+# À partir de V8, le fil rouge déploie sur un cluster : kind crée un
+# Kubernetes 1.37 dans Docker, kubectl et helm y installent Kyverno, cosign
+# signe les images que le cluster doit admettre ou refuser.
 
 [tools]
 act = "0.2.89"
 uv = "0.12.21"
 python = "3.14.8"
+kind = "0.33.0"
+kubectl = "1.37.1"
+helm = "4.3.0"
+cosign = "3.1.3"

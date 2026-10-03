@@ -1,0 +1,9 @@
+id: capstone-v08-admission-signee
+title: "V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé"
+description: |
+  notes-api tourne désormais dans un cluster Kubernetes, et le cluster démarre
+  toute image qu'un manifeste nomme. Écrivez les politiques d'admission Kyverno
+  de l'espace de noms notes-api : seules les images du registre interne,
+  signées par la clé de la plateforme, sont admises ; une image non signée,
+  signée par une autre clé, ou venue d'un autre registre est refusée,
+  Deployment compris, sans bloquer le reste du cluster.

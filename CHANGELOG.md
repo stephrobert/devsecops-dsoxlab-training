@@ -106,6 +106,21 @@ this catalog, the version of the common thread.
   verify. Artifacts stay on upload-artifact v5.0.0 and download-artifact
   v6.0.0, the later versions failing under act 0.2.89. Proven both ways,
   then against four faulty variants.
+- **`capstone-v08-admission-signee`**: notes-api reaches a cluster. The
+  learner writes the Kyverno admission policies of the `notes-api`
+  namespace, an `ImageValidatingPolicy` for the platform signature and a
+  `ValidatingPolicy` for the internal registry, in `policies.kyverno.io/v1`
+  since Kyverno 1.19 deprecates `ClusterPolicy`. The checks set up kind
+  1.37, a registry reachable as `registry.notes.internal` from the nodes and
+  from the Pods, and Kyverno 1.19.1, then request admissions in
+  `--dry-run=server`: signed image admitted, unsigned or foreign-key image
+  refused, Deployment included, Docker Hub refused in `notes-api` and still
+  admitted in `default`. Measured on 2026-10-03: cosign 3.1 writes its
+  signature in the new bundle format by default, which Kyverno 1.19.1 does
+  not find ("no signatures found"); the bench signs with
+  `--new-bundle-format=false`. `mise.toml` now pins kind 0.33.0, kubectl
+  1.37.1, helm 4.3.0 and cosign 3.1.3. Proven both ways, then against four
+  faulty variants.
 - **`tests/test_fixtures_declarees.py`**: each file of `fixtures/` must be
   declared in `runtime.fixtures`. The V5 `lab.yaml` omitted
   `infra/github-oidc-trust.json`: the solution replay copies the whole
