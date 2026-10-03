@@ -1,0 +1,52 @@
+# Tout est refusé par défaut dans notes-api, en entrée comme en sortie. Deux
+# exceptions, nommées : le contrôleur d'entrée joint l'API sur son port, et
+# les Pods résolvent les noms par le DNS du cluster.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: tout-refuser
+  namespace: notes-api
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: entree-depuis-ingress
+  namespace: notes-api
+spec:
+  podSelector:
+    matchLabels:
+      app: notes-api
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: ingress
+      ports:
+        - protocol: TCP
+          port: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sortie-dns
+  namespace: notes-api
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

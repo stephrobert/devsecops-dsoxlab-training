@@ -1,0 +1,10 @@
+id: capstone-v10-vex-et-exceptions
+title: "V10, VEX et exceptions datées : chaque constat accepté est écrit"
+description: |
+  L'équipe relève le seuil à MEDIUM. Trois constats de configuration
+  remontent, et pip 25.0.1, venu de l'image de base, porte des vulnérabilités
+  que les scanners des images déjà livrées continuent de signaler. Corrigez ce
+  qui se corrige, retirez pip de l'image, acceptez le reste en exceptions
+  datées avec leur raison, et publiez un document VEX qui dit aux exploitants
+  des versions précédentes que pip n'affecte pas notes-api. Une exception
+  expirée rend de nouveau le pipeline rouge.

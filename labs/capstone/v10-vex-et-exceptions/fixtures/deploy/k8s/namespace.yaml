@@ -1,0 +1,11 @@
+# Le standard restricted des Pod Security Standards, imposé à l'admission :
+# un Pod qui demande des privilèges, garde ses capacités Linux ou tourne en
+# root est refusé avant même d'être créé.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notes-api
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted

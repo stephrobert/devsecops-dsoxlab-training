@@ -10,6 +10,7 @@ behind NetworkPolicies that only let the ingress controller in and DNS out.
 | Duration | about 50 minutes |
 | Paired lesson | [Isolating the network with NetworkPolicies](https://blog.stephane-robert.info/en/docs/devsecops/runtime/network-policies/) |
 | Previous | `capstone-v08-admission-signee` |
+| Next | `capstone-v10-vex-et-exceptions` |
 
 ```bash
 mise install

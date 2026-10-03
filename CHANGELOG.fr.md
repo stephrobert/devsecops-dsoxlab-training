@@ -141,6 +141,21 @@ pour ce catalogue, la version du fil rouge.
   Docker. Éprouvé dans les deux sens, puis contre quatre variantes fautives ;
   une cinquième, sans la politique de refus général, passe à juste titre,
   les deux autres politiques isolant déjà les Pods qu'elles sélectionnent.
+- **`capstone-v10-vex-et-exceptions`** : les portes Trivy passent au seuil
+  MEDIUM. Trois constats de configuration remontent : le versioning du
+  bucket des versions se corrige, le bucket des exports (AWS-0090) et le
+  registre interne inconnu de Trivy (KSV-0125, la politique d'admission de
+  V8 servant de contrôle compensatoire) deviennent des exceptions datées dans
+  `.trivyignore.yaml`. pip 25.0.1, venu de l'image de base, quitte l'image
+  finale, et un document VEX déclare ses vulnérabilités `not_affected` pour
+  les versions déjà livrées. Les contrôles construisent l'image précédente
+  depuis les fixtures et l'analysent avec le VEX de l'apprenant ; les
+  identifiants des CVE de pip sont lus dans Trivy à l'exécution, pas écrits
+  dans les tests. Mesuré le 2026-10-03 : sans `--ignore-unfixed`, l'image
+  porte plus de 150 CVE Debian sans correctif, bien trop mouvantes pour
+  fonder un lab ; pip 25.0.1, figé par le digest de l'image de base, porte 5
+  CVE MEDIUM corrigées en amont. Éprouvé dans les deux sens, puis contre
+  quatre variantes fautives.
 - **`tests/test_fixtures_declarees.py`** : chaque fichier de `fixtures/` doit
   être déclaré dans `runtime.fixtures`. Le `lab.yaml` de V5 omettait
   `infra/github-oidc-trust.json` : le rejeu des solutions copie le dossier

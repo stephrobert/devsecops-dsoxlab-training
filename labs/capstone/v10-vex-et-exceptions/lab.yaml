@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v10-vex-et-exceptions
+title: "V10, VEX and dated exceptions: every accepted finding is written down"
+description: |
+  The team raises the bar to MEDIUM. Three configuration findings come up, and
+  pip 25.0.1 of the base image carries vulnerabilities that the scanners of
+  the released images keep reporting. Fix what can be fixed, remove pip from
+  the image, accept the rest as dated exceptions with their reason, and
+  publish a VEX document that tells the operators of the previous releases
+  that pip does not affect notes-api. An expired exception turns the pipeline
+  red again.
+section: capstone
+level: capstone
+difficulty: advanced
+lab_type: lab
+estimated_time: 50m
+skills:
+  - vex
+  - openvex
+  - risk-acceptance
+  - trivy
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V9, avec la menace T-17 ouverte.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - .github/workflows/pr-welcome.yml
+    - .github/CODEOWNERS
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - scripts/check_sbom.py
+    - scripts/verify_release.sh
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - deploy/signing/cosign.pub
+    - deploy/policies/images-signees.yaml
+    - deploy/policies/registre-interne.yaml
+    - deploy/k8s/namespace.yaml
+    - deploy/k8s/deployment.yaml
+    - deploy/k8s/service.yaml
+    - deploy/k8s/networkpolicy.yaml
+    - infra/deploy.tf
+    - infra/github-oidc-trust.json
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

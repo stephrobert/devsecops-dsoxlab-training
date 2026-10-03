@@ -9,5 +9,6 @@
   "https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/": "https://blog.stephane-robert.info/en/docs/github-actions/security/zizmor/",
   "https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/": "https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/",
   "https://blog.stephane-robert.info/docs/securiser/outils/trivy/": "https://blog.stephane-robert.info/en/docs/devsecops/containers-iac/trivy/",
-  "https://blog.stephane-robert.info/docs/securiser/supply-chain/attestations/slsa-provenance-decision/": "https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/"
+  "https://blog.stephane-robert.info/docs/securiser/supply-chain/attestations/slsa-provenance-decision/": "https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/",
+  "https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/": "https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/vex/"
 }

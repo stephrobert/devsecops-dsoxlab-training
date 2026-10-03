@@ -49,3 +49,4 @@ sections:
       - capstone/v07-sbom-et-provenance
       - capstone/v08-admission-signee
       - capstone/v09-runtime-cloisonne
+      - capstone/v10-vex-et-exceptions

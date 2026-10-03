@@ -1,0 +1,40 @@
+# Dans l'espace de noms notes-api, une image n'est admise que si la clé de la
+# plateforme l'a signée. La clé publique est celle de deploy/signing/cosign.pub :
+# elle n'est pas un secret, et la recopier ici la rend relisible en revue.
+#
+# Le registre interne n'inscrit pas les signatures dans un journal de
+# transparence public : le bloc ctlog dispense Kyverno de cette vérification.
+apiVersion: policies.kyverno.io/v1
+kind: ImageValidatingPolicy
+metadata:
+  name: notes-api-images-signees
+spec:
+  validationActions: [Deny]
+  failurePolicy: Fail
+  matchConstraints:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: notes-api
+    resourceRules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE", "UPDATE"]
+        resources: ["pods"]
+  matchImageReferences:
+    - glob: "registry.notes.internal:5000/*"
+  attestors:
+    - name: plateforme
+      cosign:
+        key:
+          data: |
+            -----BEGIN PUBLIC KEY-----
+            MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbceWLGFfJlbjlasUnu6tuY+u6K8r
+            eN24nHhFtO9x2borRkKlO/KUOLxbfV3HBiPyB+udPssGpxFepctP/uXABw==
+            -----END PUBLIC KEY-----
+        ctlog:
+          insecureIgnoreTlog: true
+  validations:
+    - expression: >-
+        images.containers.map(image,
+          verifyImageSignatures(image, [attestors.plateforme])).all(e, e > 0)
+      message: "notes-api n'admet que des images signées par la clé de la plateforme."

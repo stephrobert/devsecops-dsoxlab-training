@@ -191,8 +191,9 @@ refuse un lien dans la mauvaise langue.
 | `capstone-v07-sbom-et-provenance` | V7, SBOM et provenance : savoir ce qu'on livre, prouver d'où ça vient | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/supply-chain/attestations/slsa-provenance-decision/) |
 | `capstone-v08-admission-signee` | V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
 | `capstone-v09-runtime-cloisonne` | V9, l'exécution cloisonnée : Pods restreints et réseau fermé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
+| `capstone-v10-vex-et-exceptions` | V10, VEX et exceptions datées : chaque constat accepté est écrit | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/) |
 
-_10 labs, table générée par `scripts/gen_catalog.py`._
+_11 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->
 
 ## Contribuer et licence

@@ -133,6 +133,20 @@ this catalog, the version of the common thread.
   needs a real machine, not a cluster in Docker. Proven both ways, then
   against four faulty variants; a fifth, without the deny-all policy, rightly
   passes, the two other policies already isolating the pods they select.
+- **`capstone-v10-vex-et-exceptions`**: the Trivy gates move to MEDIUM. Three
+  configuration findings come up: versioning on the releases bucket is
+  fixed, the exports bucket (AWS-0090) and the internal registry unknown to
+  Trivy (KSV-0125, the V8 admission policy being the compensating control)
+  become dated exceptions in `.trivyignore.yaml`. pip 25.0.1 of the base
+  image leaves the final image, and a VEX document declares its
+  vulnerabilities `not_affected` for the releases already shipped. The
+  checks build the previous image from the fixtures and analyse it with the
+  learner's VEX; the pip CVE identifiers are read from Trivy at run time,
+  not written in the tests. Measured on 2026-10-03: without
+  `--ignore-unfixed`, the image carries over 150 Debian CVEs without a fix,
+  far too unstable to found a lab on; pip 25.0.1, frozen by the base image
+  digest, carries 5 MEDIUM CVEs fixed upstream. Proven both ways, then
+  against four faulty variants.
 - **`tests/test_fixtures_declarees.py`**: each file of `fixtures/` must be
   declared in `runtime.fixtures`. The V5 `lab.yaml` omitted
   `infra/github-oidc-trust.json`: the solution replay copies the whole
