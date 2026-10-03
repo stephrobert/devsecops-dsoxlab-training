@@ -1,0 +1,158 @@
+# Threat model of notes-api, reviewed with the code of src/notes_api/app.py.
+#
+# One entry per threat. A mitigated threat names the file that proves it; an
+# open threat is a known debt, scheduled for a later version.
+
+threats:
+  - id: T-01
+    stride: T
+    component: GET /notes/search
+    threat: >-
+      The search term is concatenated into the SQL query. Anyone who can call
+      the route can rewrite the query and read or alter every note.
+    mitigation: parameterised query, and a SAST rule that blocks the pattern
+    status: mitigated
+    evidence: tests/test_app.py
+
+  - id: T-02
+    stride: I
+    component: GET /notes/search
+    threat: >-
+      The search returns notes of every owner: an injected term, or even a
+      plain one, discloses other users' notes.
+    mitigation: filter the search by the caller's identity
+    status: open
+
+  - id: T-03
+    stride: S
+    component: GET /notes
+    threat: >-
+      The owner is a query parameter: any caller can claim to be alice and
+      read her notes. There is no authentication at all.
+    mitigation: authenticate the caller and take the owner from the identity
+    status: open
+
+  - id: T-04
+    stride: E
+    component: POST /notes
+    threat: >-
+      The owner of a new note is taken from the request body: a caller can
+      create notes in someone else's name.
+    mitigation: derive the owner from the authenticated identity
+    status: open
+
+  - id: T-05
+    stride: R
+    component: POST /notes
+    threat: >-
+      Nothing records who created or changed a note: a user can deny an action
+      and no log can contradict them.
+    mitigation: structured audit log of every write, with the caller identity
+    status: open
+
+  - id: T-06
+    stride: D
+    component: GET /health
+    threat: >-
+      The service has no rate limit: a flood of requests, on /health or on the
+      search, exhausts the single SQLite connection.
+    mitigation: rate limiting at the ingress, and a timeout on queries
+    status: accepted
+
+  - id: T-07
+    stride: T
+    component: pipeline
+    threat: >-
+      A change that breaks the application reaches main without anyone running
+      the tests.
+    mitigation: the CI runs the tests on every push and pull request
+    status: mitigated
+    evidence: .github/workflows/ci.yml
+
+  - id: T-08
+    stride: T
+    component: dependencies
+    threat: >-
+      A dependency with a known vulnerability is installed, or a different
+      version than the one reviewed.
+    mitigation: >-
+      locked install with uv sync --locked, and osv-scanner blocks the pipeline
+      on any known vulnerability of the lock; each accepted one is justified
+      and dated in osv-scanner.toml
+    status: mitigated
+    evidence: osv-scanner.toml
+
+  - id: T-09
+    stride: E
+    component: container image
+    threat: >-
+      The Dockerfile runs the service as root: a code execution in the app
+      becomes root in the container.
+    mitigation: unprivileged user and a minimal base image
+    status: mitigated
+    evidence: Dockerfile
+
+  - id: T-10
+    stride: I
+    component: infra/main.tf
+    threat: >-
+      The security group opens SSH and the API to 0.0.0.0/0.
+    mitigation: restrict the ingress to known ranges, scan the IaC in CI
+    status: mitigated
+    evidence: infra/main.tf
+
+  - id: T-11
+    stride: S
+    component: POST /notes/import
+    threat: >-
+      Anyone can post a batch of notes pretending to come from the partner
+      service, and write in any owner's name.
+    mitigation: >-
+      the batch is signed in ECDSA P-256 and verified with the partner's public
+      key; an unsigned or foreign batch is refused
+    status: mitigated
+    evidence: tests/test_app.py
+
+  - id: T-12
+    stride: S
+    component: pipeline deploy credentials
+    threat: >-
+      The deploy job authenticates with a long-lived access key stored as a
+      repository secret. Whoever exfiltrates it, through a compromised action,
+      a malicious workflow change or a leaked log, publishes releases from
+      anywhere, for as long as nobody rotates the key.
+    mitigation: >-
+      short-lived credentials obtained by OIDC, for a role that only main can
+      assume; no key to steal
+    status: mitigated
+    evidence: infra/github-oidc-trust.json
+
+  - id: T-13
+    stride: E
+    component: pull request workflows
+    threat: >-
+      A workflow triggered by pull_request_target runs with a write token and
+      the repository secrets, then checks out and executes the code of the
+      pull request, even from a fork. A crafted title is also pasted into a
+      shell script. Any outsider who opens a pull request runs code with the
+      repository's privileges.
+    mitigation: >-
+      never execute the proposed code in a privileged trigger, pass event
+      fields through environment variables, audit every workflow with zizmor
+      and actionlint in CI, and require a review by the security team on any
+      change to the workflows
+    status: mitigated
+    evidence: .github/CODEOWNERS
+
+  - id: T-14
+    stride: T
+    component: release archive
+    threat: >-
+      Whoever deploys notes-api cannot tell whether an archive of the bucket
+      was built by the pipeline from main, nor what it carries: an archive
+      replaced in the bucket, or built from a branch, deploys like any other.
+    mitigation: >-
+      a signed provenance attestation for each archive, verified before any
+      deployment against the repository, the workflow and the ref; an SBOM
+      published next to it, checked against uv.lock
+    status: open

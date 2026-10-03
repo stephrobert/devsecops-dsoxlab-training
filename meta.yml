@@ -46,3 +46,4 @@ sections:
       - capstone/v04-identite-sans-secret
       - capstone/v05-pipeline-durci
       - capstone/v06-image-et-iac
+      - capstone/v07-sbom-et-provenance

@@ -97,6 +97,20 @@ pour ce catalogue, la version du fil rouge.
   dans Debian, d'où la reconstruction avec les correctifs et
   `--ignore-unfixed`. Éprouvé dans les deux sens, puis contre quatre
   variantes fautives.
+- **`capstone-v07-sbom-et-provenance`** : Trivy produit le SBOM CycloneDX de
+  l'image construite, que `scripts/check_sbom.py`, l'outil de l'équipe,
+  confronte à `uv.lock` (paquets de l'environnement de l'application
+  seulement, pas le pip de l'image de base) ; un paquet installé hors du
+  verrou rend le pipeline rouge. Le job de déploiement atteste la provenance
+  de l'archive avec attest-build-provenance v4.2.2 et publie le SBOM à côté,
+  et `scripts/verify_release.sh` exige le dépôt, le workflow signataire, la
+  référence et un runner hébergé par GitHub ; les contrôles l'exécutent avec
+  un faux `gh` qui enregistre ses arguments, act ne fournissant pas de jeton
+  OIDC. Le SBOM vient de Trivy plutôt que de syft : l'image de syft ne porte
+  aucune signature cosign à vérifier. Les artefacts restent sur
+  upload-artifact v5.0.0 et download-artifact v6.0.0, les versions
+  suivantes échouant sous act 0.2.89. Éprouvé dans les deux sens, puis
+  contre quatre variantes fautives.
 - **`tests/test_fixtures_declarees.py`** : chaque fichier de `fixtures/` doit
   être déclaré dans `runtime.fixtures`. Le `lab.yaml` de V5 omettait
   `infra/github-oidc-trust.json` : le rejeu des solutions copie le dossier

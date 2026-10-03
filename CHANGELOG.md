@@ -93,6 +93,19 @@ this catalog, the version of the common thread.
   day already carried a HIGH CVE of libpcre2 fixed in Debian, hence the
   rebuild with the fixes and `--ignore-unfixed`. Proven both ways, then
   against four faulty variants.
+- **`capstone-v07-sbom-et-provenance`**: Trivy produces the CycloneDX SBOM of
+  the built image, which the team's `scripts/check_sbom.py` confronts with
+  `uv.lock` (packages of the application environment only, not the pip of
+  the base image); a package installed outside the lock turns the pipeline
+  red. The deploy job attests the provenance of the archive with
+  attest-build-provenance v4.2.2 and publishes the SBOM next to it, and
+  `scripts/verify_release.sh` requires the repository, the signer workflow,
+  the ref and a GitHub-hosted runner; the checks run it with a fake `gh` that
+  records its arguments, act providing no OIDC token. The SBOM is produced by
+  Trivy rather than syft: the syft image carries no cosign signature to
+  verify. Artifacts stay on upload-artifact v5.0.0 and download-artifact
+  v6.0.0, the later versions failing under act 0.2.89. Proven both ways,
+  then against four faulty variants.
 - **`tests/test_fixtures_declarees.py`**: each file of `fixtures/` must be
   declared in `runtime.fixtures`. The V5 `lab.yaml` omitted
   `infra/github-oidc-trust.json`: the solution replay copies the whole

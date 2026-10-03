@@ -12,6 +12,7 @@ Internet any more.
 | Duration | about 60 minutes |
 | Paired lesson | [Scanning images, dependencies and IaC with Trivy](https://blog.stephane-robert.info/en/docs/devsecops/containers-iac/trivy/) |
 | Previous | `capstone-v05-pipeline-durci` |
+| Next | `capstone-v07-sbom-et-provenance` |
 
 ```bash
 mise install

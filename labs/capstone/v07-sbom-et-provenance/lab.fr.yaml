@@ -1,0 +1,10 @@
+id: capstone-v07-sbom-et-provenance
+title: "V7, SBOM et provenance : savoir ce qu'on livre, prouver d'où ça vient"
+description: |
+  notes-api publie une archive que personne ne peut tracer : aucun inventaire
+  de ce que l'image embarque, aucune preuve du pipeline qui l'a construite.
+  Produisez le SBOM de l'image construite et confrontez-le à uv.lock avec
+  l'outil de l'équipe, pour qu'un paquet installé hors du verrou rende le
+  pipeline rouge ; attestez la provenance de l'archive publiée depuis le job
+  de déploiement ; et écrivez la vérification qui refuse de déployer une
+  archive que ci.yml n'a pas construite depuis main.

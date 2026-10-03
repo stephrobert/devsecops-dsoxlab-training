@@ -11,6 +11,7 @@ privilège, et l'infrastructure n'expose plus rien à Internet.
 | Durée | environ 60 minutes |
 | Leçon jumelée | [Scanner image, dépendances et IaC avec Trivy](https://blog.stephane-robert.info/docs/securiser/outils/trivy/) |
 | Précédent | `capstone-v05-pipeline-durci` |
+| Suivant | `capstone-v07-sbom-et-provenance` |
 
 ```bash
 mise install
