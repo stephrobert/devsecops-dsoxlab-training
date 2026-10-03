@@ -42,3 +42,4 @@ sections:
       - capstone/v00-pipeline-minimal
       - capstone/v01-modele-de-menace
       - capstone/v02-secrets-et-sast
+      - capstone/v03-sca-et-triage

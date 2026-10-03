@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v03-sca-et-triage
+title: "V3, dependency scanning and triage: fix what can be fixed, date what cannot"
+description: |
+  notes-api's lock carries eight known vulnerabilities, and its pipeline sees
+  none of them. Add a blocking dependency scan, upgrade the packages that have
+  a fixed version, and triage the one that has no fix: a written reason and an
+  expiry date in osv-scanner.toml. The vulnerable lock, or an expired
+  exception, must turn the pipeline red.
+section: capstone
+level: capstone
+difficulty: intermediate
+lab_type: lab
+estimated_time: 45m
+skills:
+  - sca
+  - osv-scanner
+  - vulnerability-triage
+  - github-actions
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V2, plus une route d'import signée
+  # en ECDSA : elle apporte la dépendance ecdsa, et la vulnérabilité sans
+  # correctif que le triage doit traiter.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

@@ -184,8 +184,9 @@ refuse un lien dans la mauvaise langue.
 | `capstone-v00-pipeline-minimal` | V0, un pipeline minimal : notes-api testée à chaque push | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 | `capstone-v01-modele-de-menace` | V1, un modèle de menace : STRIDE sur notes-api, vérifié par le pipeline | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/) |
 | `capstone-v02-secrets-et-sast` | V2, secrets et SAST bloquants : deux portes, et l'injection corrigée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/tests-securite/) |
+| `capstone-v03-sca-et-triage` | V3, analyse des dépendances et triage : corriger ce qui se corrige, dater ce qui ne se corrige pas | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/) |
 
-_3 labs, table générée par `scripts/gen_catalog.py`._
+_4 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->
 
 ## Contribuer et licence

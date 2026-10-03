@@ -11,6 +11,7 @@ corrigée.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [Tests de sécurité automatisés](https://blog.stephane-robert.info/docs/devops/fondamentaux/tests-securite/) |
 | Précédent | `capstone-v01-modele-de-menace` |
+| Suivant | `capstone-v03-sca-et-triage` |
 
 ```bash
 mise install

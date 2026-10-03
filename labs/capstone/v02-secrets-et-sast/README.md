@@ -10,6 +10,7 @@ the SQL injection named by the threat model is fixed.
 | Duration | about 50 minutes |
 | Paired lesson | [Automated security testing](https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/security-testing/) |
 | Previous | `capstone-v01-modele-de-menace` |
+| Next | `capstone-v03-sca-et-triage` |
 
 ```bash
 mise install

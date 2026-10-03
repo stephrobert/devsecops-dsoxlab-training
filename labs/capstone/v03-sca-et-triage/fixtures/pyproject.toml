@@ -1,0 +1,23 @@
+[project]
+name = "notes-api"
+version = "0.1.0"
+description = "Un petit service de notes : le projet que le fil rouge DevSecOps fait évoluer"
+requires-python = ">=3.12"
+dependencies = [
+    "flask==3.0.3",
+    "werkzeug==3.0.3",
+    "ecdsa==0.19.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pyyaml>=6.0.2",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

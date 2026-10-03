@@ -50,3 +50,13 @@ this catalog, the version of the common thread.
   the injection to a new route no test covers: a first version reintroduced it
   into `/notes/search`, where the regression test turned the pipeline red even
   with a Semgrep that did not block.
+- **`capstone-v03-sca-et-triage`**: osv-scanner 2.6.0 becomes a blocking
+  gate on `uv.lock`. The starting point adds a signed import route, verified
+  with `ecdsa`: eight known vulnerabilities, seven with a fixed version, and
+  the Minerva attack (GHSA-wj6h-64fc-37mp), which has none. The seven are
+  fixed by upgrading, the eighth is triaged in `osv-scanner.toml` with a
+  reason checked against the code (notes-api only verifies) and an expiry
+  date within six months; a copy whose exception has expired turns the
+  pipeline red. Proven both ways, then against four faulty variants: a
+  non-blocking scanner, fixable vulnerabilities excused instead of fixed, an
+  exception without a near expiry, a reason that cites nothing.

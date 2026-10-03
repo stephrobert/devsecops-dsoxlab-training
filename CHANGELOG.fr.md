@@ -51,3 +51,14 @@ pour ce catalogue, la version du fil rouge.
   l'injection dans une route nouvelle, que nul test ne couvre : une première
   version la réintroduisait dans `/notes/search`, où le test de régression
   rendait le pipeline rouge même avec un Semgrep qui ne bloquait pas.
+- **`capstone-v03-sca-et-triage`** : osv-scanner 2.6.0 devient une porte
+  bloquante sur `uv.lock`. Le point de départ ajoute une route d'import
+  signée, vérifiée avec `ecdsa` : huit vulnérabilités connues, sept avec une
+  version corrigée, et l'attaque Minerva (GHSA-wj6h-64fc-37mp), qui n'en a
+  pas. Les sept se corrigent par montée de version, la huitième se trie dans
+  `osv-scanner.toml` avec une raison vérifiable contre le code (notes-api ne
+  fait que vérifier) et une date d'expiration dans les six mois ; une copie
+  dont l'exception a expiré rend le pipeline rouge. Éprouvé dans les deux
+  sens, puis contre quatre variantes fautives : un scanner qui ne bloque pas,
+  des vulnérabilités corrigeables excusées au lieu d'être corrigées, une
+  exception sans échéance proche, une raison qui ne cite rien.

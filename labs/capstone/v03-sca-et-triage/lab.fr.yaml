@@ -1,0 +1,9 @@
+id: capstone-v03-sca-et-triage
+title: "V3, analyse des dépendances et triage : corriger ce qui se corrige, dater ce qui ne se corrige pas"
+description: |
+  Le verrou de notes-api porte huit vulnérabilités connues, et son pipeline
+  n'en voit aucune. Ajoutez une analyse des dépendances bloquante, montez les
+  paquets qui ont une version corrigée, et triez celle qui n'a pas de
+  correctif : une raison écrite et une date d'expiration dans
+  osv-scanner.toml. Le verrou vulnérable, ou une exception expirée, doivent
+  rendre le pipeline rouge.
