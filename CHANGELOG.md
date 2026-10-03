@@ -36,3 +36,10 @@ this catalog, the version of the common thread.
   pull request triggers the same check. Proven both ways, then against two
   faulty solutions: a `uv sync` without `--locked` loses the lock check, an
   `echo "5 passed"` instead of pytest loses three.
+- **`capstone-v01-modele-de-menace`**: notes-api gets its STRIDE threat model,
+  checked by a team tool the pipeline runs on every push. Five checks: the
+  model is valid, every route of `app.py` is analysed in it, the SQL injection
+  of `/notes/search` is named and stays open, a broken model turns the
+  pipeline red, the pipeline stays green and still tests. Proven both ways,
+  then against three faulty variants that each lose only the targeted check
+  (two for the missing checker).

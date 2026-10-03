@@ -40,3 +40,4 @@ sections:
     description: "Evolve a single service from a minimal pipeline to a signed, admitted, monitored and measured delivery chain, one version per module of the DevSecOps course."
     labs:
       - capstone/v00-pipeline-minimal
+      - capstone/v01-modele-de-menace

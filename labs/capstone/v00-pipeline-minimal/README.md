@@ -10,7 +10,7 @@ request.
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 30 minutes |
 | Paired lesson | [The DevSecOps common thread](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
-| Next | `v01-modele-de-menace` |
+| Next | `capstone-v01-modele-de-menace` |
 
 ```bash
 mise install                         # uv, Python and act

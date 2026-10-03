@@ -10,7 +10,7 @@ pull request.
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 30 minutes |
 | Leçon jumelée | [Le fil rouge DevSecOps](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
-| Suivant | `v01-modele-de-menace` |
+| Suivant | `capstone-v01-modele-de-menace` |
 
 ```bash
 mise install                         # uv, Python et act

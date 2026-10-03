@@ -37,3 +37,10 @@ pour ce catalogue, la version du fil rouge.
   sens, puis contre deux solutions fautives : un `uv sync` sans `--locked` perd
   le contrôle du verrou, un `echo "5 passed"` à la place de pytest en perd
   trois.
+- **`capstone-v01-modele-de-menace`** : notes-api reçoit son modèle de menace
+  STRIDE, vérifié par un outil de l'équipe que le pipeline lance à chaque
+  push. Cinq contrôles : le modèle est valide, chaque route de `app.py` y est
+  analysée, l'injection SQL de `/notes/search` y est nommée et reste ouverte,
+  un modèle cassé rend le pipeline rouge, le pipeline reste vert et teste
+  toujours. Éprouvé dans les deux sens, puis contre trois variantes fautives
+  qui perdent chacune le seul contrôle visé (deux pour le vérificateur absent).

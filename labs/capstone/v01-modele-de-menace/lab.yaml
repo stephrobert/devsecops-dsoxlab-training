@@ -1,0 +1,44 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v01-modele-de-menace
+title: "V1, a threat model: STRIDE on notes-api, checked by the pipeline"
+description: |
+  notes-api now has a pipeline, but nobody wrote down what can go wrong. Write
+  its STRIDE threat model, confront it with the real routes of the code, and
+  make the pipeline refuse a model left incomplete. The SQL injection the code
+  carries must be named, and stay open until the next version fixes it.
+section: capstone
+level: capstone
+difficulty: beginner
+lab_type: lab
+estimated_time: 40m
+skills:
+  - threat-modeling
+  - stride
+  - github-actions
+  - ci
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V0 : notes-api et son pipeline,
+  # plus le vérificateur de modèle que l'équipe vient d'écrire.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

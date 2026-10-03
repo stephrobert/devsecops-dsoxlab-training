@@ -1,0 +1,8 @@
+id: capstone-v01-modele-de-menace
+title: "V1, un modèle de menace : STRIDE sur notes-api, vérifié par le pipeline"
+description: |
+  notes-api a désormais un pipeline, mais personne n'a écrit ce qui peut mal
+  tourner. Écrivez son modèle de menace STRIDE, confrontez-le aux vraies
+  routes du code, et faites refuser par le pipeline un modèle laissé
+  incomplet. L'injection SQL que porte le code doit y être nommée, et rester
+  ouverte jusqu'à ce que la version suivante la corrige.
