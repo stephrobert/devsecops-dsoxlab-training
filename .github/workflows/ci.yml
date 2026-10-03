@@ -57,6 +57,12 @@ jobs:
           # 2026-09-09, après la v0.6.3 de l'action : elle est donc refusée.
           version: "1.30.0"
           advanced-security: false
+          # Les workflows DU CATALOGUE, pas ceux des labs. Les fixtures de V5
+          # portent exprès un pr-welcome.yml vulnérable (pull_request_target,
+          # injection de template) : c'est le point de départ que l'apprenant
+          # corrige, et ce sont les tests du lab qui le jugent. Les solutions,
+          # elles, sont chiffrées et illisibles pour zizmor.
+          inputs: .github/workflows
 
   # Workflow syntax gate. actionlint is the only scanner that rejects an
   # invalid permission scope (e.g. the tempting-but-nonexistent
