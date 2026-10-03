@@ -43,3 +43,4 @@ sections:
       - capstone/v01-modele-de-menace
       - capstone/v02-secrets-et-sast
       - capstone/v03-sca-et-triage
+      - capstone/v04-identite-sans-secret

@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v04-identite-sans-secret
+title: "V4, an identity without a secret: OIDC instead of a stored key"
+description: |
+  notes-api is published by a deploy job that holds a long-lived AWS access
+  key in the repository secrets. Replace it with an OIDC exchange: only the
+  deploy job may request a token, only a push on main deploys, and the role's
+  trust policy accepts a token from main of acme/notes-api and nothing else.
+  The IAM user and its key leave the infrastructure code.
+section: capstone
+level: capstone
+difficulty: intermediate
+lab_type: lab
+estimated_time: 50m
+skills:
+  - oidc
+  - workload-identity
+  - aws-iam
+  - github-actions
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V3, la signature vérifiée avec
+  # cryptography (l'exception Minerva refermée), plus un job de déploiement
+  # qui s'authentifie avec une clé statique et l'utilisateur IAM qui la porte.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+    - infra/deploy.tf
+    - osv-scanner.toml
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

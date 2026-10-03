@@ -1,0 +1,9 @@
+id: capstone-v04-identite-sans-secret
+title: "V4, une identité sans secret : OIDC au lieu d'une clé stockée"
+description: |
+  notes-api est publiée par un job de déploiement qui détient une clé d'accès
+  AWS de longue durée dans les secrets du dépôt. Remplacez-la par un échange
+  OIDC : seul le job de déploiement peut demander un jeton, seul un push sur
+  main déploie, et la politique de confiance du rôle accepte un jeton de main
+  de acme/notes-api et rien d'autre. L'utilisateur IAM et sa clé quittent le
+  code d'infrastructure.

@@ -13,7 +13,7 @@ resource "aws_security_group" "notes_api" {
   description = "Acces a notes-api"
 
   ingress {
-    description = "SSH d'administration"
+    description = "SSH administration"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

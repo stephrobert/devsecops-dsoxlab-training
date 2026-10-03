@@ -62,3 +62,16 @@ pour ce catalogue, la version du fil rouge.
   sens, puis contre quatre variantes fautives : un scanner qui ne bloque pas,
   des vulnérabilités corrigeables excusées au lieu d'être corrigées, une
   exception sans échéance proche, une raison qui ne cite rien.
+- **`capstone-v04-identite-sans-secret`** : le job de déploiement ne lit plus
+  de clé d'accès AWS dans les secrets du dépôt. Il obtient un jeton OIDC, seul
+  job autorisé à le faire, sur un push sur main uniquement, et endosse un rôle
+  dont la politique de confiance vit dans un fichier JSON. Les contrôles
+  évaluent cette politique contre cinq jetons (main, branche de travail, pull
+  request, autre dépôt, autre audience), parce qu'act ne sait pas fournir de
+  jeton OIDC : mesuré avec configure-aws-credentials v6.3.0, un rôle et une
+  clé statique échouent de la même façon sous act. Le point de départ referme
+  l'exception Minerva de V3 comme sa revue le prévoyait, en passant la
+  vérification de signature à `cryptography`. Éprouvé dans les deux sens, puis
+  contre quatre variantes fautives qui perdent chacune le seul contrôle visé.
+- **`infra/main.tf` passe `terraform validate`** dès V0 : la description
+  « SSH d'administration » portait une apostrophe que le provider AWS refuse.

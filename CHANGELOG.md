@@ -60,3 +60,16 @@ this catalog, the version of the common thread.
   pipeline red. Proven both ways, then against four faulty variants: a
   non-blocking scanner, fixable vulnerabilities excused instead of fixed, an
   exception without a near expiry, a reason that cites nothing.
+- **`capstone-v04-identite-sans-secret`**: the deploy job no longer reads an
+  AWS access key from the repository secrets. It obtains an OIDC token, the
+  only job allowed to, only on a push on main, and assumes a role whose trust
+  policy lives in a JSON file. The checks evaluate that policy against five
+  tokens (main, work branch, pull request, another repository, another
+  audience), because act cannot provide an OIDC token: measured with
+  configure-aws-credentials v6.3.0, a role and a static key fail the same way
+  under act. The starting point closes the Minerva exception of V3 as its
+  review planned, by moving the signature check to `cryptography`. Proven
+  both ways, then against four faulty variants that each lose only the
+  targeted check.
+- **`infra/main.tf` passes `terraform validate`** from V0 on: the description
+  "SSH d'administration" contained an apostrophe the AWS provider refuses.
