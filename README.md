@@ -183,17 +183,17 @@ link in the wrong language.
 | Lab (id) | Title | Level | Runtime | Companion guide |
 |---|---|---|---|---|
 | `capstone-v00-pipeline-minimal` | V0, a minimal pipeline: notes-api tested on every push | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
-| `capstone-v01-modele-de-menace` | V1, a threat model: STRIDE on notes-api, checked by the pipeline | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/threat-modeling/stride/) |
-| `capstone-v02-secrets-et-sast` | V2, blocking secret scanning and SAST: two gates, and the injection fixed | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/security-testing/) |
-| `capstone-v03-sca-et-triage` | V3, dependency scanning and triage: fix what can be fixed, date what cannot | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/) |
-| `capstone-v04-identite-sans-secret` | V4, an identity without a secret: OIDC instead of a stored key | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/github-actions/security/oidc/) |
-| `capstone-v05-pipeline-durci` | V5, a hardened pipeline: workflows audited, pull requests contained | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/github-actions/security/zizmor/) |
-| `capstone-v06-image-et-iac` | V6, the image and the infrastructure: what you ship besides the code | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/containers-iac/trivy/) |
-| `capstone-v07-sbom-et-provenance` | V7, SBOM and provenance: know what ships, prove where it comes from | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/) |
-| `capstone-v08-admission-signee` | V8, admission: the cluster refuses what the platform did not sign | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/runtime/kubernetes-supply-chain-security/) |
-| `capstone-v09-runtime-cloisonne` | V9, a contained runtime: restricted pods and closed network | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/runtime/network-policies/) |
-| `capstone-v10-vex-et-exceptions` | V10, VEX and dated exceptions: every accepted finding is written down | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/vex/) |
-| `capstone-v11-slo-et-dora` | V11, measuring reliability: an SLO that pages, a runbook, the DORA metrics | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/reliability/slo-sli-error-budget/) |
+| `capstone-v01-modele-de-menace` | V1, a threat model: STRIDE on notes-api, checked by the pipeline | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v02-secrets-et-sast` | V2, blocking secret scanning and SAST: two gates, and the injection fixed | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v03-sca-et-triage` | V3, dependency scanning and triage: fix what can be fixed, date what cannot | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v04-identite-sans-secret` | V4, an identity without a secret: OIDC instead of a stored key | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v05-pipeline-durci` | V5, a hardened pipeline: workflows audited, pull requests contained | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v06-image-et-iac` | V6, the image and the infrastructure: what you ship besides the code | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v07-sbom-et-provenance` | V7, SBOM and provenance: know what ships, prove where it comes from | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v08-admission-signee` | V8, admission: the cluster refuses what the platform did not sign | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v09-runtime-cloisonne` | V9, a contained runtime: restricted pods and closed network | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v10-vex-et-exceptions` | V10, VEX and dated exceptions: every accepted finding is written down | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
+| `capstone-v11-slo-et-dora` | V11, measuring reliability: an SLO that pages, a runbook, the DORA metrics | capstone | shell | [guide](https://blog.stephane-robert.info/en/docs/devsecops/capstone/devsecops-capstone/) |
 
 _12 labs, table generated by `scripts/gen_catalog.py`._
 <!-- LABS:END -->

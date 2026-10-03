@@ -18,7 +18,7 @@ skills:
   - ci
 distros:
   - ubuntu24
-doc_url: https://blog.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/
+doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
 runtime:
   type: shell
   workdir: challenge/work

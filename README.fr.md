@@ -182,17 +182,17 @@ refuse un lien dans la mauvaise langue.
 | Lab (id) | Titre | Niveau | Runtime | Guide compagnon |
 |---|---|---|---|---|
 | `capstone-v00-pipeline-minimal` | V0, un pipeline minimal : notes-api testée à chaque push | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
-| `capstone-v01-modele-de-menace` | V1, un modèle de menace : STRIDE sur notes-api, vérifié par le pipeline | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/) |
-| `capstone-v02-secrets-et-sast` | V2, secrets et SAST bloquants : deux portes, et l'injection corrigée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/tests-securite/) |
-| `capstone-v03-sca-et-triage` | V3, analyse des dépendances et triage : corriger ce qui se corrige, dater ce qui ne se corrige pas | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/) |
-| `capstone-v04-identite-sans-secret` | V4, une identité sans secret : OIDC au lieu d'une clé stockée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/) |
-| `capstone-v05-pipeline-durci` | V5, un pipeline durci : workflows audités, pull requests contenues | capstone | shell | [guide](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/) |
-| `capstone-v06-image-et-iac` | V6, l'image et l'infrastructure : ce qu'on livre au-delà du code | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/outils/trivy/) |
-| `capstone-v07-sbom-et-provenance` | V7, SBOM et provenance : savoir ce qu'on livre, prouver d'où ça vient | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/supply-chain/attestations/slsa-provenance-decision/) |
-| `capstone-v08-admission-signee` | V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
-| `capstone-v09-runtime-cloisonne` | V9, l'exécution cloisonnée : Pods restreints et réseau fermé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
-| `capstone-v10-vex-et-exceptions` | V10, VEX et exceptions datées : chaque constat accepté est écrit | capstone | shell | [guide](https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/) |
-| `capstone-v11-slo-et-dora` | V11, mesurer la fiabilité : un SLO qui réveille, un runbook, les métriques DORA | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/) |
+| `capstone-v01-modele-de-menace` | V1, un modèle de menace : STRIDE sur notes-api, vérifié par le pipeline | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v02-secrets-et-sast` | V2, secrets et SAST bloquants : deux portes, et l'injection corrigée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v03-sca-et-triage` | V3, analyse des dépendances et triage : corriger ce qui se corrige, dater ce qui ne se corrige pas | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v04-identite-sans-secret` | V4, une identité sans secret : OIDC au lieu d'une clé stockée | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v05-pipeline-durci` | V5, un pipeline durci : workflows audités, pull requests contenues | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v06-image-et-iac` | V6, l'image et l'infrastructure : ce qu'on livre au-delà du code | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v07-sbom-et-provenance` | V7, SBOM et provenance : savoir ce qu'on livre, prouver d'où ça vient | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v08-admission-signee` | V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v09-runtime-cloisonne` | V9, l'exécution cloisonnée : Pods restreints et réseau fermé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v10-vex-et-exceptions` | V10, VEX et exceptions datées : chaque constat accepté est écrit | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v11-slo-et-dora` | V11, mesurer la fiabilité : un SLO qui réveille, un runbook, les métriques DORA | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 
 _12 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->

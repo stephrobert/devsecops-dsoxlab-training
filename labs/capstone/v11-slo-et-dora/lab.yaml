@@ -20,7 +20,7 @@ skills:
   - dora-metrics
 distros:
   - ubuntu24
-doc_url: https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/
+doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
 runtime:
   type: shell
   workdir: challenge/work

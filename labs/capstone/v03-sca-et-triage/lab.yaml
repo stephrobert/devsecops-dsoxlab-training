@@ -19,7 +19,7 @@ skills:
   - github-actions
 distros:
   - ubuntu24
-doc_url: https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/
+doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
 runtime:
   type: shell
   workdir: challenge/work
