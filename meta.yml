@@ -30,9 +30,28 @@ repo:
     the project's own delivery metrics. Each version is graded on the state
     of the repository, never on the commands typed.
 
-# PAS de bloc `infra:` pour les premières versions : elles se jouent sur le
-# poste de l'apprenant, avec act et Docker. Les versions qui demandent un
-# cluster ou une VM (V8, V9) ajouteront leur topologie.
+# Presque tout le fil rouge se joue sur le poste, avec act, Docker et kind.
+# Une seule version demande une vraie machine : V9b, la détection à
+# l'exécution avec Falco, dont la sonde eBPF lit les appels système du noyau.
+# Un cluster kind partage le noyau de l'hôte et ne prouverait rien de plus.
+infra:
+  # Provider choisi par l'apprenant : dsoxlab use --provider kvm (ou incus).
+  provider:
+    - kvm
+    - incus
+  # 10.10.20 Ansible, 10.10.30 Linux, 10.10.40 validation des guides,
+  # 10.10.50 Kubernetes : 10.10.60 reste libre.
+  network: lab-devsecops
+  cidr: 10.10.60.0/24
+  # L'IP et la MAC dérivent de la POSITION dans cette liste : tout nouvel hôte
+  # s'ajoute EN FIN DE LISTE.
+  hosts:
+    - name: falco-1.lab
+      distro: ubuntu24
+      role: runtime
+      ram_mb: 4096
+      vcpu: 2
+      disk_gb: 20
 
 sections:
   - id: capstone
@@ -49,5 +68,6 @@ sections:
       - capstone/v07-sbom-et-provenance
       - capstone/v08-admission-signee
       - capstone/v09-runtime-cloisonne
+      - capstone/v09b-detection-falco
       - capstone/v10-vex-et-exceptions
       - capstone/v11-slo-et-dora

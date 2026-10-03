@@ -1,5 +1,6 @@
 {
   "https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/": "https://blog.stephane-robert.info/en/docs/devsecops/runtime/network-policies/",
+  "https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/falco/": "https://blog.stephane-robert.info/en/docs/devsecops/runtime/falco/",
   "https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/": "https://blog.stephane-robert.info/en/docs/devsecops/runtime/kubernetes-supply-chain-security/",
   "https://blog.stephane-robert.info/docs/devops/": "https://blog.stephane-robert.info/en/docs/devsecops/",
   "https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/": "https://blog.stephane-robert.info/en/docs/devsecops/reliability/slo-sli-error-budget/",

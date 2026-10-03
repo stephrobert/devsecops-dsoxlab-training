@@ -1,0 +1,32 @@
+---
+# Remise à zéro de V9b : le setup refait tout l'état de départ et doit pouvoir
+# être rejoué. On retire ici ce que l'apprenant a posé, et le conteneur.
+- name: Cleanup V9b
+  hosts: lab_target
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Retirer les règles de l'apprenant
+      ansible.builtin.file:
+        path: /etc/falco/rules.d/notes-api.yaml
+        state: absent
+
+    - name: Vider le journal d'alertes
+      ansible.builtin.copy:
+        dest: /var/log/falco/events.json
+        content: ""
+        mode: "0644"
+      failed_when: false
+
+    - name: Relancer Falco sans ces règles
+      ansible.builtin.systemd_service:
+        name: falco-modern-bpf.service
+        state: restarted
+      failed_when: false
+
+    - name: Retirer le conteneur notes-api
+      ansible.builtin.command:
+        cmd: docker rm -f notes-api
+      register: retrait
+      changed_when: retrait.rc == 0
+      failed_when: false

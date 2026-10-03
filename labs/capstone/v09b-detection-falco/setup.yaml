@@ -1,0 +1,128 @@
+---
+# V9b, état de départ : notes-api tourne dans Docker, sous Falco.
+#
+# Le setup pose l'outillage et l'application, jamais les règles : écrire les
+# règles qui détectent ce qui ne doit pas arriver dans notes-api est le
+# travail de l'apprenant. Il doit pouvoir être rejoué sur une VM déjà
+# utilisée : il retire donc toute règle laissée par un passage précédent.
+- name: V9b, notes-api sous Falco
+  hosts: lab_target
+  become: true
+  gather_facts: false
+  vars:
+    falco_version: "0.45.0"
+    # Empreinte de la clé de signature des paquets Falco, relevée le
+    # 2026-10-03 sur https://falco.org/repo/falcosecurity-packages.asc.
+    falco_key_fpr: "478B2FBBC75F4237B731DA4365106822B35B1B1F"
+    falco_key_url: "https://falco.org/repo/falcosecurity-packages.asc"
+    falco_keyring: /usr/share/keyrings/falco-archive-keyring.asc
+  tasks:
+    - name: Outillage de base
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - ca-certificates
+          - gnupg
+          - jq
+        state: present
+        update_cache: true
+
+    - name: Télécharger la clé de signature des paquets Falco
+      ansible.builtin.get_url:
+        url: "{{ falco_key_url }}"
+        dest: "{{ falco_keyring }}"
+        mode: "0644"
+
+    - name: Lire l'empreinte de la clé téléchargée
+      ansible.builtin.command:
+        cmd: gpg --show-keys --with-colons {{ falco_keyring }}
+      register: falco_key
+      changed_when: false
+
+    - name: Refuser une clé dont l'empreinte n'est pas la bonne
+      ansible.builtin.assert:
+        that: falco_key_fpr in falco_key.stdout
+        fail_msg: "La clé Falco téléchargée n'a pas l'empreinte attendue {{ falco_key_fpr }}."
+
+    - name: Déclarer le dépôt Falco
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by={{ falco_keyring }}] https://download.falco.org/packages/deb stable main"
+        filename: falcosecurity
+        state: present
+
+    - name: Installer Falco, sonde eBPF moderne
+      ansible.builtin.apt:
+        name: "falco={{ falco_version }}"
+        state: present
+        update_cache: true
+      environment:
+        FALCO_FRONTEND: noninteractive
+        FALCO_DRIVER_CHOICE: modern_ebpf
+
+    - name: Sortie JSON des alertes dans un fichier que l'on peut relire
+      ansible.builtin.copy:
+        dest: /etc/falco/config.d/fil-rouge.yaml
+        mode: "0644"
+        content: |
+          # Posé par le setup de V9b : chaque alerte part aussi, en JSON, dans
+          # /var/log/falco/events.json.
+          json_output: true
+          json_include_output_property: true
+          file_output:
+            enabled: true
+            keep_alive: false
+            filename: /var/log/falco/events.json
+
+    - name: Répertoire des alertes
+      ansible.builtin.file:
+        path: /var/log/falco
+        state: directory
+        mode: "0755"
+
+    - name: Repartir sans règle de l'apprenant
+      ansible.builtin.file:
+        path: /etc/falco/rules.d/notes-api.yaml
+        state: absent
+
+    - name: Repartir d'un journal d'alertes vide
+      ansible.builtin.copy:
+        dest: /var/log/falco/events.json
+        content: ""
+        mode: "0644"
+
+    - name: Falco tourne avec la sonde eBPF moderne
+      ansible.builtin.systemd_service:
+        name: falco-modern-bpf.service
+        enabled: true
+        state: restarted
+
+    - name: Sources de notes-api
+      ansible.builtin.copy:
+        src: files/notes-api/
+        dest: /opt/notes-api/
+        mode: preserve
+
+    - name: Construire l'image de notes-api
+      ansible.builtin.command:
+        cmd: docker build -q -t notes-api:v9 /opt/notes-api
+      changed_when: true
+
+    - name: Retirer un conteneur notes-api laissé par un passage précédent
+      ansible.builtin.command:
+        cmd: docker rm -f notes-api
+      register: retrait
+      changed_when: retrait.rc == 0
+      failed_when: false
+
+    - name: Lancer notes-api
+      ansible.builtin.command:
+        cmd: docker run -d --name notes-api --restart unless-stopped -p 5000:5000 notes-api:v9
+      changed_when: true
+
+    - name: Attendre que notes-api réponde
+      ansible.builtin.uri:
+        url: http://127.0.0.1:5000/health
+      register: sante
+      retries: 30
+      delay: 2
+      until: sante.status == 200

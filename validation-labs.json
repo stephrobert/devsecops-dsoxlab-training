@@ -1,5 +1,5 @@
 {
-  "genere_le": "2026-10-03 13:38:10",
+  "genere_le": "2026-10-03 13:44:22",
   "act": "act version 0.2.89",
   "dsoxlab": "dsoxlab 0.3.0",
   "labs": {
@@ -110,6 +110,17 @@
       "score_apres": 100,
       "tests": "5/5",
       "duree_s": 99.9,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v09b-detection-falco": {
+      "id": "capstone-v09b-detection-falco",
+      "chemin": "capstone/v09b-detection-falco",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 80.0,
       "traces": [],
       "pourquoi": ""
     },

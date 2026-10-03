@@ -13,6 +13,9 @@
 ssh/id_ed25519
 ssh/id_rsa
 ssh/*_key
+# La clé publique aussi : chaque poste génère sa paire par
+# `dsoxlab instructor bootstrap`, rien n'est partagé.
+ssh/id_ed25519.pub
 
 # --- Ce que les labs produisent ------------------------------------------------
 

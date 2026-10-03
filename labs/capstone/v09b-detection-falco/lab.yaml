@@ -1,0 +1,39 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v09b-detection-falco
+title: "V9b, runtime detection: Falco watches notes-api on a real machine"
+description: |
+  V9 closed the pod; it does not say when someone gets in anyway. On an
+  Ubuntu machine, notes-api runs in Docker under Falco, with its modern eBPF
+  probe. Write the Falco rules of notes-api: a shell opened in its container,
+  and a write into its code, must each raise an alert that names the
+  container and the command; the application's normal activity and a shell
+  in another container must raise none. The rules must survive a restart.
+section: capstone
+level: capstone
+difficulty: advanced
+lab_type: lab
+estimated_time: 50m
+skills:
+  - falco
+  - runtime-detection
+  - ebpf
+  - docker
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
+# Falco lit les appels système du noyau : il lui faut une vraie machine. Un
+# cluster kind partage le noyau de l'hôte, et ne prouverait rien de plus.
+runtime:
+  type: vm
+  session: target
+  default: falco
+  snapshot_required: false
+  targets:
+    - name: falco
+      host: falco-1.lab
+      label_en: "Ubuntu 24.04, notes-api in Docker under Falco 0.45.0"
+      label_fr: "Ubuntu 24.04, notes-api dans Docker sous Falco 0.45.0"
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

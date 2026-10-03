@@ -59,6 +59,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -161,7 +162,10 @@ def _poser_la_solution(lab: Path) -> str | None:
         donnees = lire_yaml(lab / "lab.yaml")
     except YamlIllisible as erreur:
         return str(erreur)
-    workdir = lab / ((donnees.get("runtime") or {}).get("workdir") or "challenge/work")
+    runtime = donnees.get("runtime") or {}
+    if runtime.get("type") in ("vm", "kvm", "incus"):
+        return _jouer_solution_vm(source, runtime)
+    workdir = lab / (runtime.get("workdir") or "challenge/work")
     if not workdir.is_dir():
         return f"le workdir {workdir.relative_to(RACINE)} n'existe pas après `run`"
 
@@ -211,6 +215,38 @@ def _poser_la_solution(lab: Path) -> str | None:
                 f"la solution a rendu {proc.returncode} : "
                 f"{(proc.stderr or proc.stdout)[-300:]}"
             )
+    return None
+
+
+def _jouer_solution_vm(source: Path, runtime: dict) -> str | None:
+    """Joue solution.yaml sur la cible par défaut d'un lab `runtime: vm`.
+
+    Un lab sur machine n'a pas de workdir : sa solution est un playbook, joué
+    sur la VM que `dsoxlab provision` a déclarée dans ~/.ssh/config.d/, par
+    son nom d'hôte. Le groupe `lab_target` est celui que visent setup.yaml,
+    cleanup.yaml et solution.yaml.
+    """
+    playbook = source / "solution.yaml"
+    if not playbook.is_file():
+        return f"aucun solution.yaml sous {source.relative_to(RACINE)}"
+    cibles = {c["name"]: c["host"] for c in runtime.get("targets") or []}
+    hote = cibles.get(runtime.get("default")) or next(iter(cibles.values()), None)
+    if hote is None:
+        return "runtime vm sans cible déclarée"
+    with tempfile.TemporaryDirectory(prefix="valider-vm-") as tmp:
+        inventaire = Path(tmp) / "inventaire.ini"
+        inventaire.write_text(f"[lab_target]\n{hote}\n", encoding="utf-8")
+        with open(os.devnull) as entree:
+            proc = subprocess.run(
+                ["ansible-playbook", "-i", str(inventaire), "--vault-password-file", str(VAULT), str(playbook)],
+                stdin=entree,
+                capture_output=True,
+                text=True,
+                timeout=900,
+                check=False,
+            )
+    if proc.returncode != 0:
+        return f"la solution a rendu {proc.returncode} : {(proc.stdout + proc.stderr)[-400:]}"
     return None
 
 

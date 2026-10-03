@@ -175,3 +175,21 @@ pour ce catalogue, la version du fil rouge.
   aurait reçu un projet dont le modèle de menace échoue d'emblée.
 - **`infra/main.tf` passe `terraform validate`** dès V0 : la description
   « SSH d'administration » portait une apostrophe que le provider AWS refuse.
+- **`capstone-v09b-detection-falco`**, version annexe entre V9 et V10, et
+  premier lab du catalogue sur une vraie machine : sur une VM Ubuntu 24.04
+  provisionnée par dsoxlab (KVM ou Incus, réseau `lab-devsecops`
+  10.10.60.0/24), notes-api tourne dans Docker sous Falco 0.45.0 et sa sonde
+  eBPF moderne, installé depuis son dépôt après vérification de l'empreinte
+  de la clé de signature. L'apprenant écrit les règles Falco de notes-api ;
+  les contrôles provoquent eux-mêmes un shell et une écriture, avec un
+  marqueur unique, puis ce qui ne doit rien déclencher, et ne lisent que les
+  alertes des règles de l'apprenant. Mesuré le 2026-10-03 : `output_fields`
+  ne porte que les champs que la sortie de la règle cite, et `falco -V` sur
+  le seul fichier de l'apprenant échoue sur les macros des règles par
+  défaut. Éprouvé dans les deux sens par `valider-labs.py`, puis contre trois
+  jeux de règles fautifs qui perdent chacun le seul contrôle visé.
+- **Attestation** : les treize labs sont VALIDE dans `validation-labs.json`,
+  0 puis 100. `jouer_act` passe `--rm` à act : sans lui, le conteneur de tout
+  job en échec reste derrière, et les copies piégées échouent exprès.
+  `valider-labs.py` joue le `solution.yaml` d'un lab `vm` avec
+  ansible-playbook, et `verify-solutions.py` lui laisse ces labs.

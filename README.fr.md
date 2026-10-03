@@ -191,10 +191,11 @@ refuse un lien dans la mauvaise langue.
 | `capstone-v07-sbom-et-provenance` | V7, SBOM et provenance : savoir ce qu'on livre, prouver d'où ça vient | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 | `capstone-v08-admission-signee` | V8, l'admission : le cluster refuse ce que la plateforme n'a pas signé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 | `capstone-v09-runtime-cloisonne` | V9, l'exécution cloisonnée : Pods restreints et réseau fermé | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
+| `capstone-v09b-detection-falco` | V9b, la détection à l'exécution : Falco surveille notes-api sur une vraie machine | capstone | vm | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 | `capstone-v10-vex-et-exceptions` | V10, VEX et exceptions datées : chaque constat accepté est écrit | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 | `capstone-v11-slo-et-dora` | V11, mesurer la fiabilité : un SLO qui réveille, un runbook, les métriques DORA | capstone | shell | [guide](https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/) |
 
-_12 labs, table générée par `scripts/gen_catalog.py`._
+_13 labs, table générée par `scripts/gen_catalog.py`._
 <!-- LABS:END -->
 
 ## Contribuer et licence

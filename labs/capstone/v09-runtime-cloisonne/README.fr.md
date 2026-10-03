@@ -11,7 +11,7 @@ contrôleur d'entrée et sortir que le DNS.
 | Durée | environ 50 minutes |
 | Leçon jumelée | [Cloisonner le réseau avec les NetworkPolicies](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
 | Précédent | `capstone-v08-admission-signee` |
-| Suivant | `capstone-v10-vex-et-exceptions` |
+| Suivant | `capstone-v09b-detection-falco` |
 
 ```bash
 mise install

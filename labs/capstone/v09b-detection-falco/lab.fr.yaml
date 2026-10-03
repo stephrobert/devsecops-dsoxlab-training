@@ -1,0 +1,10 @@
+id: capstone-v09b-detection-falco
+title: "V9b, la détection à l'exécution : Falco surveille notes-api sur une vraie machine"
+description: |
+  V9 a fermé le Pod ; il ne dit pas quand quelqu'un y entre quand même. Sur
+  une machine Ubuntu, notes-api tourne dans Docker sous Falco, avec sa sonde
+  eBPF moderne. Écrivez les règles Falco de notes-api : un shell ouvert dans
+  son conteneur, et une écriture dans son code, doivent chacun lever une
+  alerte qui nomme le conteneur et la commande ; l'activité normale de
+  l'application et un shell dans un autre conteneur ne doivent en lever
+  aucune. Les règles doivent survivre à un redémarrage.

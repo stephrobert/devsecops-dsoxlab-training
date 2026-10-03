@@ -227,7 +227,86 @@ def _apply_lab_state(request: pytest.FixtureRequest) -> None:
         pytest.skip(
             ".vault-pass absent : la solution chiffrée ne peut pas être rejouée."
         )
+    runtime = (yaml.safe_load((lab_root / "lab.yaml").read_text(encoding="utf-8")) or {}).get("runtime") or {}
+    if runtime.get("type") in ("vm", "kvm", "incus"):
+        _jouer_solution_vm(lab_root, runtime)
+        return
     _materialiser_solution(lab_root)
+
+
+# ── Les labs sur machine (V9b) ──────────────────────────────────────────────
+#
+# Repris de linux-dsoxlab-training/conftest.py. L'inventaire vient de dsoxlab
+# lui-même (mêmes adresses, même ssh_config que `dsoxlab ssh`), et les tests
+# parlent à la machine par testinfra. Un lab shell ne doit jamais échouer
+# parce qu'aucune VM n'est provisionnée : toute erreur rend un inventaire vide,
+# et seuls les labs vm échouent ensuite, dans lab_host(), avec un message qui
+# dit quoi faire.
+
+
+def _inventaire() -> tuple[dict, Path | None]:
+    vide: dict = {"all": {"children": {"labenv": {"hosts": {}}}}}
+    try:
+        from dsoxlab.discovery.repo import read_repo_metadata
+        from dsoxlab.infra.inventory import (
+            build_inventory,
+            read_terraform_outputs,
+            write_ssh_config,
+        )
+    except ImportError:
+        return vide, None
+    try:
+        meta = read_repo_metadata(REPO_ROOT)
+        if meta is None:
+            return vide, None
+        inventaire = build_inventory(meta, terraform_outputs=read_terraform_outputs(meta))
+        return inventaire, write_ssh_config(inventaire, meta)
+    except Exception:  # noqa: BLE001 - un lab shell ne dépend pas de l'infra
+        return vide, None
+
+
+def lab_host(nom: str):
+    """Un hôte testinfra, en SSH avec sudo, d'après l'inventaire de dsoxlab."""
+    try:
+        import testinfra
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "testinfra est absent : lancez ce lab par `dsoxlab check`, qui l'embarque."
+        ) from exc
+    inventaire, ssh_config = _inventaire()
+    hotes = inventaire.get("all", {}).get("children", {}).get("labenv", {}).get("hosts", {})
+    if nom not in hotes:
+        raise RuntimeError(
+            f"La machine {nom} n'est pas dans l'inventaire : lancez `dsoxlab provision`, "
+            "puis `dsoxlab run` sur ce lab."
+        )
+    if ssh_config is None or not ssh_config.is_file():
+        raise RuntimeError("ssh_config introuvable : lancez `dsoxlab provision`.")
+    return testinfra.get_host(f"ssh://{nom}?ssh_config={ssh_config}&sudo=true")
+
+
+def _jouer_solution_vm(lab_root: Path, runtime: dict) -> None:
+    """Joue solution/<lab>/solution.yaml sur la cible par défaut, par ansible-runner."""
+    solution = SOLUTIONS_ROOT / lab_root.relative_to(LABS_ROOT) / "solution.yaml"
+    if not solution.is_file():
+        return
+    cibles = {c["name"]: c["host"] for c in runtime.get("targets") or []}
+    hote = cibles.get(runtime.get("default")) or next(iter(cibles.values()), None)
+    if hote is None:
+        pytest.fail(f"{lab_root.name} : runtime vm sans cible déclarée dans lab.yaml.")
+    try:
+        from dsoxlab.discovery.repo import read_repo_metadata
+        from dsoxlab.infra import ansible as ansible_infra
+        from dsoxlab.infra.inventory import build_inventory, read_terraform_outputs
+    except ImportError:
+        pytest.skip("dsoxlab est absent : la solution d'un lab vm se rejoue par dsoxlab.")
+    meta = read_repo_metadata(REPO_ROOT)
+    inventaire = build_inventory(meta, terraform_outputs=read_terraform_outputs(meta), target_fqdn=hote)
+    resultat = ansible_infra.run_playbook(
+        playbook_path=solution, inventory=inventaire, vault_password_file=VAULT_PASS
+    )
+    if not resultat.ok:
+        pytest.fail(f"La solution de {lab_root.name} n'a pas pu être jouée sur {hote}.")
 
 
 # --- Jouer un workflow avec act ------------------------------------------------

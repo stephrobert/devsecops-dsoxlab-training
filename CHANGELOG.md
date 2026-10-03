@@ -164,3 +164,20 @@ this catalog, the version of the common thread.
   have received a project whose threat model fails from the start.
 - **`infra/main.tf` passes `terraform validate`** from V0 on: the description
   "SSH d'administration" contained an apostrophe the AWS provider refuses.
+- **`capstone-v09b-detection-falco`**, a side version between V9 and V10 and
+  the first lab of the catalog on a real machine: on an Ubuntu 24.04 VM
+  provisioned by dsoxlab (KVM or Incus, network `lab-devsecops`
+  10.10.60.0/24), notes-api runs in Docker under Falco 0.45.0 and its modern
+  eBPF probe, installed from its repository after the signing key
+  fingerprint is checked. The learner writes the Falco rules of notes-api;
+  the checks trigger a shell and a write themselves, with a unique marker,
+  then what must trigger nothing, and read the alerts of the learner's rules
+  only. Measured on 2026-10-03: `output_fields` only carries the fields the
+  rule output cites, and `falco -V` on the learner's file alone fails on the
+  macros of the default rules. Proven both ways by `valider-labs.py`, then
+  against three faulty rule sets that each lose only the targeted check.
+- **Attestation**: the thirteen labs are VALIDE in `validation-labs.json`,
+  0 then 100. `jouer_act` passes `--rm` to act: without it, the container of
+  every failed job stays behind, and the booby-trapped copies fail on
+  purpose. `valider-labs.py` plays the `solution.yaml` of a `vm` lab with
+  ansible-playbook, and `verify-solutions.py` leaves `vm` labs to it.

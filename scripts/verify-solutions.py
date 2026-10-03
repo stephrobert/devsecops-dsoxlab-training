@@ -41,6 +41,8 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
+
 REPO = Path(__file__).resolve().parent.parent
 SOLUTIONS = REPO / "solution"
 LABS = REPO / "labs"
@@ -88,7 +90,18 @@ def solutions_disponibles() -> list[str]:
                 trouves.add(str(candidat.relative_to(SOLUTIONS)))
                 break
             candidat = candidat.parent
-    return sorted(trouves)
+    return sorted(rel for rel in trouves if not _sur_machine(rel))
+
+
+def _sur_machine(lab_rel: str) -> bool:
+    """Un lab `runtime: vm` se joue sur une VM, pas dans un workdir temporaire.
+
+    Sa solution est un playbook, et ses tests parlent à la machine en SSH : ce
+    script ne sait ni l'un ni l'autre. `scripts/valider-labs.py` l'éprouve
+    dans les deux sens, par dsoxlab, sur la VM provisionnée (V9b, Falco).
+    """
+    donnees = yaml.safe_load((LABS / lab_rel / "lab.yaml").read_text(encoding="utf-8")) or {}
+    return (donnees.get("runtime") or {}).get("type") in ("vm", "kvm", "incus")
 
 
 def dechiffrer(fichier: Path) -> bytes:
