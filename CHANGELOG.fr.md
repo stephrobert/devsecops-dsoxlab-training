@@ -44,3 +44,10 @@ pour ce catalogue, la version du fil rouge.
   un modèle cassé rend le pipeline rouge, le pipeline reste vert et teste
   toujours. Éprouvé dans les deux sens, puis contre trois variantes fautives
   qui perdent chacune le seul contrôle visé (deux pour le vérificateur absent).
+- **`capstone-v02-secrets-et-sast`** : gitleaks et Semgrep deviennent deux
+  portes bloquantes du pipeline, l'injection de `/notes/search` est corrigée
+  par une requête paramétrée, un test de régression la tente, et le modèle de
+  menace la déclare traitée avec ce test comme preuve. La copie piégée ajoute
+  l'injection dans une route nouvelle, que nul test ne couvre : une première
+  version la réintroduisait dans `/notes/search`, où le test de régression
+  rendait le pipeline rouge même avec un Semgrep qui ne bloquait pas.

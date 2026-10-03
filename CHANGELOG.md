@@ -43,3 +43,10 @@ this catalog, the version of the common thread.
   pipeline red, the pipeline stays green and still tests. Proven both ways,
   then against three faulty variants that each lose only the targeted check
   (two for the missing checker).
+- **`capstone-v02-secrets-et-sast`**: gitleaks and Semgrep become two blocking
+  gates of the pipeline, the injection of `/notes/search` is fixed with a
+  parameterised query, a regression test attempts it, and the threat model
+  declares it mitigated with that test as evidence. The booby-trapped copy adds
+  the injection to a new route no test covers: a first version reintroduced it
+  into `/notes/search`, where the regression test turned the pipeline red even
+  with a Semgrep that did not block.

@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/stephrobert/dsoxlab/main/schemas/lab.schema.json
+id: capstone-v02-secrets-et-sast
+title: "V2, blocking secret scanning and SAST: two gates, and the injection fixed"
+description: |
+  notes-api's threat model names a SQL injection that is still open. Add two
+  blocking gates to the pipeline, a secret scanner and a static analysis, then
+  fix the injection they would stop, prove the fix with a regression test, and
+  update the threat model. An injected secret or a new concatenated query must
+  turn the pipeline red.
+section: capstone
+level: capstone
+difficulty: intermediate
+lab_type: lab
+estimated_time: 50m
+skills:
+  - sast
+  - semgrep
+  - secret-scanning
+  - gitleaks
+  - github-actions
+distros:
+  - ubuntu24
+doc_url: https://blog.stephane-robert.info/docs/devops/fondamentaux/tests-securite/
+runtime:
+  type: shell
+  workdir: challenge/work
+  # Le point de départ est la solution de V1 : notes-api, son pipeline et son
+  # modèle de menace, où l'injection de /notes/search est encore ouverte.
+  fixtures:
+    - .actrc
+    - .gitignore
+    - .python-version
+    - .github/workflows/ci.yml
+    - README.md
+    - pyproject.toml
+    - uv.lock
+    - threat-model.yml
+    - scripts/check_threat_model.py
+    - src/notes_api/__init__.py
+    - src/notes_api/app.py
+    - tests/test_app.py
+    - Dockerfile
+    - infra/main.tf
+validation:
+  functional: true
+  security: true
+  persistence_after_reboot: false

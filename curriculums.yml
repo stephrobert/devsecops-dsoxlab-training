@@ -124,7 +124,7 @@ mots_cles:
   PW.4: ["reutilis", "reuse", "composant", "component"]
   PW.5: ["codage", "coding", "code"]
   PW.6: ["build", "compil"]
-  PW.7: ["code source", "source code", "analys", "relire", "review"]
+  PW.7: ["code source", "source code", "analys", "analyz", "relire", "review"]
   PW.8: ["test", "executable"]
   PW.9: ["defaut", "default"]
   RV.1: ["identifier", "identify", "continu", "ongoing"]

@@ -10,6 +10,7 @@ the code and checked on every push.
 | Duration | about 40 minutes |
 | Paired lesson | [Threat modeling with STRIDE](https://blog.stephane-robert.info/en/docs/devsecops/threat-modeling/stride/) |
 | Previous | `capstone-v00-pipeline-minimal` |
+| Next | `capstone-v02-secrets-et-sast` |
 
 ```bash
 mise install

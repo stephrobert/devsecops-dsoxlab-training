@@ -1,0 +1,9 @@
+id: capstone-v02-secrets-et-sast
+title: "V2, secrets et SAST bloquants : deux portes, et l'injection corrigée"
+description: |
+  Le modèle de menace de notes-api nomme une injection SQL encore ouverte.
+  Ajoutez deux portes bloquantes au pipeline, une analyse de secrets et une
+  analyse statique, puis corrigez l'injection qu'elles arrêteraient, prouvez la
+  correction par un test de régression, et mettez à jour le modèle de menace.
+  Un secret injecté ou une nouvelle requête concaténée doivent rendre le
+  pipeline rouge.
