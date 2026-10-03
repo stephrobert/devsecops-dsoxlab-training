@@ -1,0 +1,139 @@
+{
+  "genere_le": "2026-10-03 13:38:10",
+  "act": "act version 0.2.89",
+  "dsoxlab": "dsoxlab 0.3.0",
+  "labs": {
+    "capstone-v00-pipeline-minimal": {
+      "id": "capstone-v00-pipeline-minimal",
+      "chemin": "capstone/v00-pipeline-minimal",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 15.0,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v01-modele-de-menace": {
+      "id": "capstone-v01-modele-de-menace",
+      "chemin": "capstone/v01-modele-de-menace",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 12.9,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v02-secrets-et-sast": {
+      "id": "capstone-v02-secrets-et-sast",
+      "chemin": "capstone/v02-secrets-et-sast",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 28.7,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v03-sca-et-triage": {
+      "id": "capstone-v03-sca-et-triage",
+      "chemin": "capstone/v03-sca-et-triage",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 36.4,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v04-identite-sans-secret": {
+      "id": "capstone-v04-identite-sans-secret",
+      "chemin": "capstone/v04-identite-sans-secret",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 103.3,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v05-pipeline-durci": {
+      "id": "capstone-v05-pipeline-durci",
+      "chemin": "capstone/v05-pipeline-durci",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 51.3,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v06-image-et-iac": {
+      "id": "capstone-v06-image-et-iac",
+      "chemin": "capstone/v06-image-et-iac",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 54.9,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v07-sbom-et-provenance": {
+      "id": "capstone-v07-sbom-et-provenance",
+      "chemin": "capstone/v07-sbom-et-provenance",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 66.9,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v08-admission-signee": {
+      "id": "capstone-v08-admission-signee",
+      "chemin": "capstone/v08-admission-signee",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 65.6,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v09-runtime-cloisonne": {
+      "id": "capstone-v09-runtime-cloisonne",
+      "chemin": "capstone/v09-runtime-cloisonne",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 99.9,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v10-vex-et-exceptions": {
+      "id": "capstone-v10-vex-et-exceptions",
+      "chemin": "capstone/v10-vex-et-exceptions",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 78.6,
+      "traces": [],
+      "pourquoi": ""
+    },
+    "capstone-v11-slo-et-dora": {
+      "id": "capstone-v11-slo-et-dora",
+      "chemin": "capstone/v11-slo-et-dora",
+      "verdict": "VALIDE",
+      "score_avant": 0,
+      "score_apres": 100,
+      "tests": "5/5",
+      "duree_s": 51.8,
+      "traces": [],
+      "pourquoi": ""
+    }
+  }
+}
