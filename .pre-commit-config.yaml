@@ -96,6 +96,17 @@ repos:
         pass_filenames: false
         always_run: true
 
+      # trufflehog ne signale que les secrets qu'il a pu VALIDER auprès du
+      # service (`--results=verified`). Une clé révoquée, un jeton expiré ou un
+      # faux secret pédagogique ne déclenchent donc rien, et restent pourtant
+      # dans l'historique d'un dépôt public. Ce contrôle lit les formes.
+      - id: aucun-jeton-versionne
+        name: aucun jeton, clé AWS ou clé privée dans ce que git porte
+        entry: uv run --no-project --with pytest --with pyyaml pytest tests/test_aucun_jeton_versionne.py -q
+        language: system
+        pass_filenames: false
+        always_run: true
+
       # LES HUIT VÉRIFICATEURS QUI NE PROTÉGEAIENT RIEN
       #
       # Constat repris du catalogue Terraform, le 2026-09-25 : neuf vérificateurs
