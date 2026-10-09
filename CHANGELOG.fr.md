@@ -10,7 +10,7 @@ publie par un tag, qui produit une archive signée (voir
 [RELEASING.fr.md](./RELEASING.fr.md)) ; l'unité qui compte reste le lab, et
 pour ce catalogue, la version du fil rouge.
 
-## [Non publié]
+## [0.1.0] - 2026-10-09
 
 ### Ajouté
 
@@ -193,3 +193,6 @@ pour ce catalogue, la version du fil rouge.
   job en échec reste derrière, et les copies piégées échouent exprès.
   `valider-labs.py` joue le `solution.yaml` d'un lab `vm` avec
   ansible-playbook, et `verify-solutions.py` lui laisse ces labs.
+
+[Non publié]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.0
