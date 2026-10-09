@@ -65,6 +65,13 @@ Terraform. These flaws are the subject of the labs, which have them fixed
 version after version. They are not vulnerabilities of the repository, and are
 not reported here.
 
+Because of that, CodeQL does not analyse `labs/**/fixtures/**` or `solution/**`
+— see [`.github/codeql/config.yml`](.github/codeql/config.yml), which explains
+the reasoning. An alert that must never be fixed is not an alert: it is noise,
+and noise hides. What the repository *ships* as its own tooling — workflows,
+validation scripts, the pytest tests that run on the learner's machine — stays
+fully analysed, and that is exactly the scope listed below.
+
 In scope:
 
 - dangerous or malicious lab material, in particular a workflow that would

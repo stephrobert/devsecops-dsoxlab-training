@@ -1,0 +1,42 @@
+# Configuration CodeQL du catalogue DevSecOps.
+#
+# POURQUOI CE FICHIER EXISTE
+#
+# Ce dépôt livre du matériau **volontairement vulnérable** : c'est son sujet.
+# `notes-api` porte une requête SQL concaténée, une dépendance épinglée sur une
+# version vulnérable, un Dockerfile qui tourne en root et un Terraform trop
+# permissif. Le lab v02 demande explicitement à l'apprenant de corriger
+# l'injection de `/notes/search`, et le même fichier montre juste au-dessus la
+# forme correcte, avec un paramètre `?`. Le contraste EST l'exercice.
+#
+# CodeQL faisait donc son travail en signalant trois `py/sql-injection` dans
+# trois copies de ce fichier. Mais une alerte qui ne doit jamais être corrigée
+# n'est plus une alerte : c'est du bruit, et le bruit cache. Avec quatorze
+# constats Scorecard du même ordre sur les Dockerfile des fixtures, le tableau
+# de bord de ce dépôt comptait dix-sept entrées permanentes — exactement ce
+# qu'il faut pour que la dix-huitième, celle qui serait réelle, passe inaperçue.
+#
+# CE QUI RESTE ANALYSÉ, ET C'EST L'ESSENTIEL
+#
+# L'exclusion porte sur le matériau PÉDAGOGIQUE, pas sur l'outillage du dépôt.
+# Restent donc analysés, et ce sont eux qui peuvent nuire à quelqu'un :
+#
+#   .github/workflows/   les workflows du catalogue lui-même
+#   scripts/             l'outillage de validation des labs
+#   labs/**/challenge/   les tests pytest joués sur la machine de l'apprenant
+#
+# Un workflow qui joindrait une destination non déclarée, ou un test qui
+# exfiltrerait quelque chose du poste de l'apprenant, reste donc vu. C'est le
+# périmètre que `SECURITY.md` déclare « in scope », et il n'a pas changé.
+name: "Catalogue DevSecOps — hors matériau pédagogique"
+
+paths-ignore:
+  # Les fixtures : le point de départ du lab, défectueux par construction.
+  - "labs/**/fixtures/**"
+  # Les solutions de référence sont chiffrées (ansible-vault) : CodeQL n'en
+  # lirait de toute façon rien d'exploitable, et les exclure évite qu'il
+  # rapporte un jour quelque chose sur du texte chiffré. Mesuré le 2026-10-09 :
+  # 49 fichiers sur 50 y sont chiffrés, le cinquantième étant
+  # `verified-with.json` — un index des versions d'outils et des statuts de
+  # vérification, qui ne porte aucun contenu de solution et doit rester lisible.
+  - "solution/**"
