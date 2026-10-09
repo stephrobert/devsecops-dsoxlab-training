@@ -66,6 +66,14 @@ trop ouvert. Ces défauts sont le sujet des labs, qui les font corriger version
 après version. Ils ne sont pas des vulnérabilités du dépôt, et ne se signalent
 pas ici.
 
+C'est pourquoi CodeQL n'analyse ni `labs/**/fixtures/**` ni `solution/**` — voir
+[`.github/codeql/config.yml`](.github/codeql/config.yml), qui expose le
+raisonnement. Une alerte qui ne doit jamais être corrigée n'est plus une alerte :
+c'est du bruit, et le bruit cache. Ce que le dépôt livre comme **son** outillage
+— workflows, scripts de validation, tests pytest joués sur la machine de
+l'apprenant — reste entièrement analysé, et c'est exactement le périmètre
+énuméré ci-dessous.
+
 Sont dans le périmètre :
 
 - du matériel de lab dangereux ou malveillant, notamment un workflow qui
