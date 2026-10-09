@@ -10,7 +10,7 @@ published by a tag, which produces a signed archive (see
 [RELEASING.md](./RELEASING.md)); the unit that matters remains the lab, and for
 this catalog, the version of the common thread.
 
-## [Unreleased]
+## [0.1.0] - 2026-10-09
 
 ### Added
 
@@ -181,3 +181,6 @@ this catalog, the version of the common thread.
   every failed job stays behind, and the booby-trapped copies fail on
   purpose. `valider-labs.py` plays the `solution.yaml` of a `vm` lab with
   ansible-playbook, and `verify-solutions.py` leaves `vm` labs to it.
+
+[Unreleased]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.0
