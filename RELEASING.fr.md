@@ -87,15 +87,37 @@ ligne du dépôt sur laquelle se priver du regard des analyseurs.
    python3 scripts/valider-labs.py      # écrit validation-labs.json
    ```
 
-2. Basculer les entrées de `CHANGELOG.md` sous une nouvelle version.
-3. Taguer et pousser le tag, ce qui déclenche `release.yml` :
+2. **Réattester les labs qui ont changé depuis leur verdict.** Un lab dont les
+   tests, les fichiers, un `conftest.py` commun ou les descripteurs ont été
+   modifiés après le commit qui a inscrit son verdict n'est plus attesté par
+   `validation-labs.json`. Depuis le dépôt du site (`test-astro-5`, cloné à
+   côté de ce dépôt), lancer :
+
+   ```bash
+   python3 scripts/reattester-labs.py --depot devsecops-dsoxlab-training           # plan et garde-fous
+   python3 scripts/reattester-labs.py --depot devsecops-dsoxlab-training --apply   # rejoue et commite
+   ```
+
+   Le script rejoue chaque lab « à réattester » par `scripts/valider-labs.py`,
+   un par un (tests et lab modifiés d'abord, puis `conftest.py` commun, puis
+   descripteurs), vérifie que le diff de `validation-labs.json` ne touche que
+   ces labs, relance `--check` et `pytest tests/`, puis fait un commit **local**
+   du seul relevé. Il refuse un dépôt non propre et un lab actif. Un verdict
+   ROUGE n'est pas commité : corriger le lab, puis relancer.
+
+   Avant de taguer, relancer le dry-run : il doit afficher
+   **« 0 lab(s) à réattester »**. Pousser ensuite le commit du relevé avec le
+   reste de la version.
+
+3. Basculer les entrées de `CHANGELOG.md` sous une nouvelle version.
+4. Taguer et pousser le tag, ce qui déclenche `release.yml` :
 
    ```bash
    git tag vX.Y.Z
    git push origin vX.Y.Z
    ```
 
-4. Le workflow construit le `tar.gz`, atteste sa provenance, le signe en
+5. Le workflow construit le `tar.gz`, atteste sa provenance, le signe en
    keyless et crée la Release GitHub avec des notes générées automatiquement.
 
 ## Vérifier une version

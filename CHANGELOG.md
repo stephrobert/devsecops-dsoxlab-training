@@ -10,6 +10,23 @@ published by a tag, which produces a signed archive (see
 [RELEASING.md](./RELEASING.md)); the unit that matters remains the lab, and for
 this catalog, the version of the common thread.
 
+## [0.1.1] - 2026-10-14
+
+### Changed
+
+- The release procedure re-attests labs modified since their verdict: a lab
+  touched after validation is no longer published on the strength of a
+  measurement that no longer describes it.
+- `SECURITY.md` and `SECURITY.fr.md` spell out how the deliberately
+  vulnerable material this catalog ships is handled.
+
+### Fixed
+
+- CodeQL no longer analyses the deliberately vulnerable material: its alerts
+  covered code whose flaw is the lab's very subject, drowning the ones that
+  matter.
+- Five GitHub actions brought up to date.
+
 ## [0.1.0] - 2026-10-09
 
 ### Added
@@ -182,5 +199,6 @@ this catalog, the version of the common thread.
   purpose. `valider-labs.py` plays the `solution.yaml` of a `vm` lab with
   ansible-playbook, and `verify-solutions.py` leaves `vm` labs to it.
 
-[Unreleased]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.1
 [0.1.0]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.0

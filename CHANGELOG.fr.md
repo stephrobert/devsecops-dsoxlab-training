@@ -10,6 +10,23 @@ publie par un tag, qui produit une archive signée (voir
 [RELEASING.fr.md](./RELEASING.fr.md)) ; l'unité qui compte reste le lab, et
 pour ce catalogue, la version du fil rouge.
 
+## [0.1.1] - 2026-10-14
+
+### Modifié
+
+- La procédure de release réatteste les labs modifiés depuis leur verdict :
+  un lab retouché après sa validation n'est plus publié sur la foi d'une
+  mesure qui ne porte plus sur lui.
+- `SECURITY.md` et `SECURITY.fr.md` précisent le traitement du matériau
+  volontairement vulnérable que ce catalogue embarque.
+
+### Corrigé
+
+- CodeQL n'analyse plus le matériau volontairement vulnérable : ses alertes
+  portaient sur du code dont le défaut est le sujet du lab, et noyaient
+  celles qui comptent.
+- Cinq actions GitHub remises à jour.
+
 ## [0.1.0] - 2026-10-09
 
 ### Ajouté
@@ -194,5 +211,6 @@ pour ce catalogue, la version du fil rouge.
   `valider-labs.py` joue le `solution.yaml` d'un lab `vm` avec
   ansible-playbook, et `verify-solutions.py` lui laisse ces labs.
 
-[Non publié]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.0...HEAD
+[Non publié]: https://github.com/stephrobert/devsecops-dsoxlab-training/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.1
 [0.1.0]: https://github.com/stephrobert/devsecops-dsoxlab-training/releases/tag/v0.1.0
