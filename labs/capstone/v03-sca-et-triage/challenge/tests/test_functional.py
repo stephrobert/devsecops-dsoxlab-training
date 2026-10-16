@@ -36,6 +36,7 @@ from conftest import (
     exiger_workdir,
     exiger_workflows,
     jouer_act,
+    message,
     workdir_lab,
 )
 
@@ -87,90 +88,131 @@ def _exceptions(projet: Path) -> list[dict]:
 
 
 def test_le_pipeline_analyse_les_dependances_et_passe(jeu_livre) -> None:
-    assert _vert(jeu_livre), "Sur le projet tel quel, le pipeline doit être vert.\n  " + jeu_livre.resume()
-    assert any(re.search(r"Scanned .*uv\.lock.* found \d+ packages", ligne) for ligne in jeu_livre.lignes), (
-        "Le pipeline ne montre aucune analyse des dépendances : osv-scanner n'a pas "
-        "lu uv.lock.\n  " + jeu_livre.resume()
+    assert _vert(jeu_livre), message(
+        en="On the project as it stands, the pipeline must be green.\n  " + jeu_livre.resume(),
+        fr="Sur le projet tel quel, le pipeline doit être vert.\n  " + jeu_livre.resume(),
     )
-    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in jeu_livre.lignes), (
-        "Les tests de l'application ne tournent plus dans le pipeline.\n  " + jeu_livre.resume()
+    assert any(re.search(r"Scanned .*uv\.lock.* found \d+ packages", ligne) for ligne in jeu_livre.lignes), message(
+        en="The pipeline shows no dependency analysis: osv-scanner did not read "
+        "uv.lock.\n  " + jeu_livre.resume(),
+        fr="Le pipeline ne montre aucune analyse des dépendances : osv-scanner n'a pas "
+        "lu uv.lock.\n  " + jeu_livre.resume(),
+    )
+    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in jeu_livre.lignes), message(
+        en="The application's tests no longer run in the pipeline.\n  " + jeu_livre.resume(),
+        fr="Les tests de l'application ne tournent plus dans le pipeline.\n  " + jeu_livre.resume(),
     )
 
 
 def test_le_verrou_vulnerable_arrete_le_pipeline(projet: Path) -> None:
-    assert (FIXTURES / "uv.lock").is_file(), f"Verrou de départ introuvable : {FIXTURES / 'uv.lock'}"
+    assert (FIXTURES / "uv.lock").is_file(), message(
+        en=f"Starting lock file not found: {FIXTURES / 'uv.lock'}",
+        fr=f"Verrou de départ introuvable : {FIXTURES / 'uv.lock'}",
+    )
     with copie_temporaire(projet) as copie:
         for nom in ("pyproject.toml", "uv.lock"):
             shutil.copy2(FIXTURES / nom, copie / nom)
         res = jouer_act(copie, "push")
-    assert _rouge(res), (
-        "Une copie qui retrouve le verrou de départ (flask et werkzeug 3.0.3, ecdsa "
+    assert _rouge(res), message(
+        en="A copy that restores the starting lock file (flask and werkzeug "
+        "3.0.3, ecdsa 0.19.1) must turn the pipeline red: dependency "
+        "analysis must BLOCK, not merely report.\n  " + res.resume(),
+        fr="Une copie qui retrouve le verrou de départ (flask et werkzeug 3.0.3, ecdsa "
         "0.19.1) doit rendre le pipeline rouge : l'analyse des dépendances doit "
-        "BLOQUER, pas seulement signaler.\n  " + res.resume()
+        "BLOQUER, pas seulement signaler.\n  " + res.resume(),
     )
-    assert any("werkzeug" in ligne and "3.0.3" in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur l'analyse des dépendances : aucune ligne "
-        "ne cite werkzeug 3.0.3.\n  " + res.resume()
+    assert any("werkzeug" in ligne and "3.0.3" in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the dependency analysis: no line "
+        "quotes werkzeug 3.0.3.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur l'analyse des dépendances : aucune ligne "
+        "ne cite werkzeug 3.0.3.\n  " + res.resume(),
     )
 
 
 def test_les_vulnerabilites_corrigeables_sont_corrigees(projet: Path) -> None:
     versions = _verrouillees(projet)
     for paquet, minimum in VERSIONS_CORRIGEES.items():
-        assert paquet in versions, f"{paquet} a disparu de uv.lock : l'application en a besoin."
-        assert _version(versions[paquet]) >= minimum, (
-            f"uv.lock verrouille {paquet} {versions[paquet]}, encore vulnérable : la "
+        assert paquet in versions, message(
+            en=f"{paquet} has disappeared from uv.lock: the application needs it.",
+            fr=f"{paquet} a disparu de uv.lock : l'application en a besoin.",
+        )
+        assert _version(versions[paquet]) >= minimum, message(
+            en=f"uv.lock pins {paquet} {versions[paquet]}, still vulnerable: the "
+            f"fixed version is {'.'.join(map(str, minimum))}. A vulnerability "
+            "that has a fix gets fixed, not excused.",
+            fr=f"uv.lock verrouille {paquet} {versions[paquet]}, encore vulnérable : la "
             f"version corrigée est {'.'.join(map(str, minimum))}. Une vulnérabilité "
-            "qui a un correctif se corrige, elle ne s'excuse pas."
+            "qui a un correctif se corrige, elle ne s'excuse pas.",
         )
     hors_minerva = [str(e.get("id")) for e in _exceptions(projet) if str(e.get("id")) not in MINERVA]
-    assert not hors_minerva, (
-        f"osv-scanner.toml accepte {', '.join(hors_minerva)} : seule l'attaque Minerva "
-        "(GHSA-wj6h-64fc-37mp) n'a pas de version corrigée. Le reste se met à jour."
+    assert not hors_minerva, message(
+        en=f"osv-scanner.toml accepts {', '.join(hors_minerva)}: only the Minerva "
+        "attack (GHSA-wj6h-64fc-37mp) has no fixed version. The rest can be "
+        "upgraded.",
+        fr=f"osv-scanner.toml accepte {', '.join(hors_minerva)} : seule l'attaque Minerva "
+        "(GHSA-wj6h-64fc-37mp) n'a pas de version corrigée. Le reste se met à jour.",
     )
     dockerfile = (projet / "Dockerfile").read_text(encoding="utf-8")
-    assert not re.search(r"==3\.0\.3|ecdsa==0\.19\.1", dockerfile), (
-        "Le Dockerfile installe encore les versions vulnérables : osv-scanner lit "
-        "uv.lock, pas cette ligne. Alignez-la sur le verrou."
+    assert not re.search(r"==3\.0\.3|ecdsa==0\.19\.1", dockerfile), message(
+        en="The Dockerfile still installs the vulnerable versions: osv-scanner "
+        "reads uv.lock, not that line. Align it with the lock file.",
+        fr="Le Dockerfile installe encore les versions vulnérables : osv-scanner lit "
+        "uv.lock, pas cette ligne. Alignez-la sur le verrou.",
     )
 
 
 def test_l_exception_est_justifiee_datee_et_le_modele_a_jour(projet: Path) -> None:
     minerva = [e for e in _exceptions(projet) if str(e.get("id")) in MINERVA]
-    assert minerva, (
-        "osv-scanner.toml n'accepte pas l'attaque Minerva (GHSA-wj6h-64fc-37mp) : "
-        "sans correctif publié, elle se trie, avec une raison et une date."
+    assert minerva, message(
+        en="osv-scanner.toml does not accept the Minerva attack "
+        "(GHSA-wj6h-64fc-37mp): with no published fix, it is triaged, with a "
+        "reason and a date.",
+        fr="osv-scanner.toml n'accepte pas l'attaque Minerva (GHSA-wj6h-64fc-37mp) : "
+        "sans correctif publié, elle se trie, avec une raison et une date.",
     )
     exception = minerva[0]
     raison = str(exception.get("reason") or "")
-    assert len(raison) >= 80 and re.search(r"verif|verify", raison, re.I), (
-        "La raison doit dire pourquoi le risque est acceptable ICI : l'attaque vise "
+    assert len(raison) >= 80 and re.search(r"verif|verify", raison, re.I), message(
+        en="The reason must say why the risk is acceptable HERE: the attack "
+        "targets signing, and notes-api only verifies. A reason that does "
+        "not mention verification cannot be reviewed against the code. "
+        f"Read: « {raison} »",
+        fr="La raison doit dire pourquoi le risque est acceptable ICI : l'attaque vise "
         "la signature, et notes-api ne fait que vérifier. Une raison qui ne cite "
-        f"pas la vérification ne se relit pas contre le code. Lu : « {raison} »"
+        f"pas la vérification ne se relit pas contre le code. Lu : « {raison} »",
     )
     echeance = exception.get("ignoreUntil")
     if isinstance(echeance, dt.datetime):
         echeance = echeance.date()
-    assert isinstance(echeance, dt.date), (
-        "L'exception n'a pas de date d'expiration (ignoreUntil) : une exception sans "
-        "échéance est une décision qu'on ne reprend jamais."
+    assert isinstance(echeance, dt.date), message(
+        en="The exception has no expiry date (ignoreUntil): an exception with no "
+        "deadline is a decision nobody ever revisits.",
+        fr="L'exception n'a pas de date d'expiration (ignoreUntil) : une exception sans "
+        "échéance est une décision qu'on ne reprend jamais.",
     )
     aujourd_hui = dt.datetime.now(tz=dt.UTC).date()
-    assert aujourd_hui < echeance <= aujourd_hui + DUREE_MAX, (
-        f"ignoreUntil vaut {echeance} : elle doit tomber dans les six prochains mois, "
-        "assez loin pour migrer, assez près pour que la décision soit reprise."
+    assert aujourd_hui < echeance <= aujourd_hui + DUREE_MAX, message(
+        en=f"ignoreUntil is {echeance}: it must fall within the next six months, "
+        "far enough to migrate, close enough for the decision to be "
+        "revisited.",
+        fr=f"ignoreUntil vaut {echeance} : elle doit tomber dans les six prochains mois, "
+        "assez loin pour migrer, assez près pour que la décision soit reprise.",
     )
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     dependances = [
         m for m in modele.get("threats", [])
         if str(m.get("component", "")).strip().lower() == "dependencies"
     ]
-    assert dependances and dependances[0].get("status") == "mitigated", (
-        "La menace sur les dépendances (T-08) passe à `mitigated` : le pipeline les "
-        "analyse désormais à chaque push."
+    assert dependances and dependances[0].get("status") == "mitigated", message(
+        en="The threat on dependencies (T-08) moves to `mitigated`: the pipeline "
+        "now analyses them on every push.",
+        fr="La menace sur les dépendances (T-08) passe à `mitigated` : le pipeline les "
+        "analyse désormais à chaque push.",
     )
-    assert (projet / str(dependances[0].get("evidence") or "")).is_file(), (
-        "La preuve de T-08 doit être un fichier du projet : le triage ou le pipeline."
+    assert (projet / str(dependances[0].get("evidence") or "")).is_file(), message(
+        en="The evidence for T-08 must be a file of the project: the triage or "
+        "the pipeline.",
+        fr="La preuve de T-08 doit être un fichier du projet : le triage ou le pipeline.",
     )
 
 
@@ -178,16 +220,26 @@ def test_une_exception_expiree_rallume_l_alerte(projet: Path) -> None:
     hier = (dt.datetime.now(tz=dt.UTC).date() - dt.timedelta(days=1)).isoformat()
     with copie_temporaire(projet) as copie:
         triage = copie / "osv-scanner.toml"
-        assert triage.is_file(), "osv-scanner.toml manque : le triage n'est pas versionné."
+        assert triage.is_file(), message(
+            en="osv-scanner.toml is missing: the triage is not under version control.",
+            fr="osv-scanner.toml manque : le triage n'est pas versionné.",
+        )
         texte, n = re.subn(r"(?m)^(\s*ignoreUntil\s*=\s*)\S+", rf"\g<1>{hier}", triage.read_text(encoding="utf-8"))
-        assert n, "osv-scanner.toml ne porte aucune ligne ignoreUntil."
+        assert n, message(
+            en="osv-scanner.toml carries no ignoreUntil line.",
+            fr="osv-scanner.toml ne porte aucune ligne ignoreUntil.",
+        )
         triage.write_text(texte, encoding="utf-8")
         res = jouer_act(copie, "push")
-    assert _rouge(res), (
-        f"Une copie dont l'exception a expiré (ignoreUntil = {hier}) doit rendre le "
-        "pipeline rouge : à l'échéance, la décision se reprend.\n  " + res.resume()
+    assert _rouge(res), message(
+        en=f"A copy whose exception has expired (ignoreUntil = {hier}) must turn "
+        "the pipeline red: at the deadline, the decision is revisited.\n  " + res.resume(),
+        fr=f"Une copie dont l'exception a expiré (ignoreUntil = {hier}) doit rendre le "
+        "pipeline rouge : à l'échéance, la décision se reprend.\n  " + res.resume(),
     )
-    assert any("GHSA-wj6h-64fc-37mp" in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur la vulnérabilité dont l'exception a "
-        "expiré.\n  " + res.resume()
+    assert any("GHSA-wj6h-64fc-37mp" in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the vulnerability whose exception has "
+        "expired.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur la vulnérabilité dont l'exception a "
+        "expiré.\n  " + res.resume(),
     )

@@ -34,6 +34,7 @@ from conftest import (
     exiger_workdir,
     exiger_workflows,
     jouer_act,
+    message,
     workdir_lab,
 )
 
@@ -78,17 +79,25 @@ def _faux_jeton() -> str:
 
 
 def test_les_deux_portes_tournent_et_le_projet_passe(jeu_livre) -> None:
-    assert _vert(jeu_livre), "Sur le projet tel quel, le pipeline doit être vert.\n  " + jeu_livre.resume()
-    assert any("no leaks found" in ligne for ligne in jeu_livre.lignes), (
-        "Le pipeline ne montre aucune analyse de secrets (la ligne « no leaks found » "
-        "de gitleaks).\n  " + jeu_livre.resume()
+    assert _vert(jeu_livre), message(
+        en="On the project as it stands, the pipeline must be green.\n  " + jeu_livre.resume(),
+        fr="Sur le projet tel quel, le pipeline doit être vert.\n  " + jeu_livre.resume(),
     )
-    assert any(re.search(r"Ran \d+ rules", ligne) for ligne in jeu_livre.lignes), (
-        "Le pipeline ne montre aucune analyse statique (la ligne « Ran N rules » de "
-        "Semgrep).\n  " + jeu_livre.resume()
+    assert any("no leaks found" in ligne for ligne in jeu_livre.lignes), message(
+        en="The pipeline shows no secret scanning (gitleaks' « no leaks found » "
+        "line).\n  " + jeu_livre.resume(),
+        fr="Le pipeline ne montre aucune analyse de secrets (la ligne « no leaks found » "
+        "de gitleaks).\n  " + jeu_livre.resume(),
     )
-    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in jeu_livre.lignes), (
-        "Les tests de l'application ne tournent plus dans le pipeline.\n  " + jeu_livre.resume()
+    assert any(re.search(r"Ran \d+ rules", ligne) for ligne in jeu_livre.lignes), message(
+        en="The pipeline shows no static analysis (Semgrep's « Ran N rules » "
+        "line).\n  " + jeu_livre.resume(),
+        fr="Le pipeline ne montre aucune analyse statique (la ligne « Ran N rules » de "
+        "Semgrep).\n  " + jeu_livre.resume(),
+    )
+    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in jeu_livre.lignes), message(
+        en="The application's tests no longer run in the pipeline.\n  " + jeu_livre.resume(),
+        fr="Les tests de l'application ne tournent plus dans le pipeline.\n  " + jeu_livre.resume(),
     )
 
 
@@ -98,13 +107,17 @@ def test_un_secret_arrete_le_pipeline(projet: Path) -> None:
             f'GITHUB_TOKEN = "{_faux_jeton()}"\n', encoding="utf-8"
         )
         res = jouer_act(copie, "push")
-    assert _rouge(res), (
-        "Une copie qui embarque un jeton GitHub dans src/notes_api/config.py doit "
-        "rendre le pipeline rouge : un secret ne doit jamais atteindre main.\n  " + res.resume()
+    assert _rouge(res), message(
+        en="A copy that embeds a GitHub token in src/notes_api/config.py must "
+        "turn the pipeline red: a secret must never reach main.\n  " + res.resume(),
+        fr="Une copie qui embarque un jeton GitHub dans src/notes_api/config.py doit "
+        "rendre le pipeline rouge : un secret ne doit jamais atteindre main.\n  " + res.resume(),
     )
-    assert any("leaks found" in ligne and "no leaks" not in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur l'analyse de secrets : gitleaks n'a pas "
-        "écrit « leaks found ».\n  " + res.resume()
+    assert any("leaks found" in ligne and "no leaks" not in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the secret scan: gitleaks did not "
+        "write « leaks found ».\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur l'analyse de secrets : gitleaks n'a pas "
+        "écrit « leaks found ».\n  " + res.resume(),
     )
 
 
@@ -119,19 +132,28 @@ def test_une_injection_sql_arrete_le_pipeline(projet: Path) -> None:
     with copie_temporaire(projet) as copie:
         app = copie / APPLICATION
         texte = app.read_text(encoding="utf-8")
-        assert texte.count("    return app\n") == 1, "La fin de create_app a changé de forme."
+        assert texte.count("    return app\n") == 1, message(
+            en="The end of create_app has changed shape.",
+            fr="La fin de create_app a changé de forme.",
+        )
         texte = texte.replace("    return app\n", ROUTE_VULNERABLE + "\n    return app\n")
         app.write_text(texte, encoding="utf-8")
         res = jouer_act(copie, "push")
-    assert _rouge(res), (
-        "Une copie qui ajoute une route /notes/export concaténant le propriétaire "
+    assert _rouge(res), message(
+        en="A copy that adds a /notes/export route concatenating the owner into "
+        "the SQL query must turn the pipeline red: static analysis must "
+        "BLOCK, not merely report. No test covers that route, only the "
+        "analysis can stop it.\n  " + res.resume(),
+        fr="Une copie qui ajoute une route /notes/export concaténant le propriétaire "
         "dans la requête SQL doit rendre le pipeline rouge : l'analyse statique doit "
         "BLOQUER, pas seulement signaler. Aucun test ne couvre cette route, seule "
-        "l'analyse peut l'arrêter.\n  " + res.resume()
+        "l'analyse peut l'arrêter.\n  " + res.resume(),
     )
-    assert any("Code Finding" in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur l'analyse statique : Semgrep n'a rapporté "
-        "aucun constat.\n  " + res.resume()
+    assert any("Code Finding" in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the static analysis: Semgrep reported "
+        "no finding.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur l'analyse statique : Semgrep n'a rapporté "
+        "aucun constat.\n  " + res.resume(),
     )
 
 
@@ -152,12 +174,18 @@ def test_la_recherche_resiste_a_l_injection(projet: Path) -> None:
         ["uv", "run", "--quiet", "--directory", str(projet), "python", "-c", script],
         capture_output=True, text=True, timeout=300, check=False, env=environnement,
     )
-    assert res.returncode == 0, "L'application ne démarre pas : " + (res.stdout + res.stderr)[-800:]
+    assert res.returncode == 0, message(
+        en="The application does not start: " + (res.stdout + res.stderr)[-800:],
+        fr="L'application ne démarre pas : " + (res.stdout + res.stderr)[-800:],
+    )
     resultat = yaml.safe_load(res.stdout.strip().splitlines()[-1])
-    assert resultat["notes"] == [], (
-        "La recherche du terme « ' OR '1'='1 » rend des notes : "
+    assert resultat["notes"] == [], message(
+        en="Searching for the term « ' OR '1'='1 » returns notes: "
+        f"{resultat['notes']}. The query is still built by concatenation, the "
+        "injection is not fixed in the code.",
+        fr="La recherche du terme « ' OR '1'='1 » rend des notes : "
         f"{resultat['notes']}. La requête est toujours construite par concaténation, "
-        "l'injection n'est pas corrigée dans le code."
+        "l'injection n'est pas corrigée dans le code.",
     )
 
 
@@ -168,15 +196,24 @@ def test_le_modele_dit_la_menace_traitee_et_sa_preuve(projet: Path) -> None:
         if str(m.get("component", "")).strip().upper() == "GET /NOTES/SEARCH"
         and str(m.get("stride", "")).strip().upper() == "T"
     ]
-    assert visees, "Le modèle ne porte plus la menace d'altération sur GET /notes/search."
+    assert visees, message(
+        en="The model no longer carries the tampering threat on GET /notes/search.",
+        fr="Le modèle ne porte plus la menace d'altération sur GET /notes/search.",
+    )
     traitees = [m for m in visees if m.get("status") == "mitigated"]
-    assert traitees, (
-        "L'injection est corrigée : la menace d'altération sur GET /notes/search "
+    assert traitees, message(
+        en="The injection is fixed: the tampering threat on GET /notes/search "
+        "moves to `mitigated`. A model that paints the code as more fragile "
+        "than it is goes stale just as surely as an over-optimistic one.",
+        fr="L'injection est corrigée : la menace d'altération sur GET /notes/search "
         "passe à `mitigated`. Un modèle qui dit le code plus fragile qu'il ne l'est "
-        "se périme aussi sûrement qu'un modèle trop optimiste."
+        "se périme aussi sûrement qu'un modèle trop optimiste.",
     )
     preuve = projet / str(traitees[0].get("evidence") or "")
-    assert preuve.is_file() and "injection" in preuve.read_text(encoding="utf-8").lower(), (
-        "La preuve citée doit être un fichier du projet qui démontre la correction : "
-        "un test de régression qui tente l'injection, et dont le nom le dit."
+    assert preuve.is_file() and "injection" in preuve.read_text(encoding="utf-8").lower(), message(
+        en="The evidence quoted must be a file of the project that demonstrates "
+        "the fix: a regression test that attempts the injection, and whose "
+        "name says so.",
+        fr="La preuve citée doit être un fichier du projet qui démontre la correction : "
+        "un test de régression qui tente l'injection, et dont le nom le dit.",
     )
