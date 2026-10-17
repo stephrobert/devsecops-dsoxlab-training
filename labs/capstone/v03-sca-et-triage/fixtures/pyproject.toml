@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "flask==3.0.3",
     "werkzeug==3.0.3",
-    "ecdsa==0.19.1",
+    "ecdsa==0.19.2",
 ]
 
 [dependency-groups]
