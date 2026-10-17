@@ -33,6 +33,7 @@ from conftest import (
     IMAGE_BASE_BANC,
     banc_kind_kyverno,
     exiger_workdir,
+    message,
     workdir_lab,
 )
 
@@ -85,7 +86,10 @@ def _documents(projet: Path) -> list[tuple[Path, dict]]:
 def projet() -> Path:
     exiger_workdir(WORKDIR, LAB_ID)
     if not (WORKDIR / POLITIQUES).is_dir() or not list((WORKDIR / POLITIQUES).glob("*.y*ml")):
-        pytest.fail(f"Aucune politique dans {POLITIQUES}/ : rien ne filtre ce que le cluster admet.")
+        pytest.fail(message(
+            en=f"No policy in {POLITIQUES}/: nothing filters what the cluster admits.",
+            fr=f"Aucune politique dans {POLITIQUES}/ : rien ne filtre ce que le cluster admet.",
+        ))
     return WORKDIR
 
 
@@ -109,52 +113,68 @@ def cluster(projet: Path):
 
 def test_une_image_signee_par_la_plateforme_est_admise(cluster) -> None:
     banc, images = cluster
-    admis, message = banc.admettre("notes-api", "signee", images["signee"])
-    assert admis, (
-        "Une image du registre interne signée par la clé de la plateforme doit être admise "
+    admis, sortie = banc.admettre("notes-api", "signee", images["signee"])
+    assert admis, message(
+        en="An image from the internal registry, signed by the platform's key, must be "
+        "admitted into notes-api. Your policies refuse it, or do not hold "
+        f"{CLE_PLATEFORME}'s key:\n  {sortie[-500:]}",
+        fr="Une image du registre interne signée par la clé de la plateforme doit être admise "
         "dans notes-api. Vos politiques la refusent, ou ne contiennent pas la clé de "
-        f"{CLE_PLATEFORME} :\n  {message[-500:]}"
+        f"{CLE_PLATEFORME} :\n  {sortie[-500:]}",
     )
 
 
 def test_une_image_non_signee_est_refusee(cluster) -> None:
     banc, images = cluster
     admis, _ = banc.admettre("notes-api", "nonsignee", images["nonsignee"])
-    assert not admis, (
-        "Une image du registre interne SANS signature est admise dans notes-api : rien "
-        "n'empêche une image poussée hors du pipeline de tourner."
+    assert not admis, message(
+        en="An UNSIGNED image from the internal registry is admitted into "
+        "notes-api: nothing stops an image pushed outside the pipeline from "
+        "running.",
+        fr="Une image du registre interne SANS signature est admise dans notes-api : rien "
+        "n'empêche une image poussée hors du pipeline de tourner.",
     )
     res = banc.kubectl(
         "-n", "notes-api", "create", "deployment", "nonsignee", f"--image={images['nonsignee']}",
         "--dry-run=server", "-o", "name", timeout=60,
     )
-    assert res.returncode != 0, (
-        "Un Deployment dont l'image n'est pas signée est accepté : il serait créé, puis son "
-        "ReplicaSet échouerait en silence à chaque Pod. Le refus doit venir dès le Deployment."
+    assert res.returncode != 0, message(
+        en="A Deployment whose image is not signed is accepted: it would be created, "
+        "then its ReplicaSet would silently fail on every Pod. The refusal must "
+        "come at the Deployment.",
+        fr="Un Deployment dont l'image n'est pas signée est accepté : il serait créé, puis son "
+        "ReplicaSet échouerait en silence à chaque Pod. Le refus doit venir dès le Deployment.",
     )
 
 
 def test_une_image_signee_par_une_autre_cle_est_refusee(cluster) -> None:
     banc, images = cluster
     admis, _ = banc.admettre("notes-api", "autrecle", images["autrecle"])
-    assert not admis, (
-        "Une image signée par une AUTRE clé que celle de la plateforme est admise : la "
-        "politique vérifie qu'une signature existe, pas qui l'a posée."
+    assert not admis, message(
+        en="An image signed by a key OTHER than the platform's is admitted: the "
+        "policy checks that a signature exists, not who put it there.",
+        fr="Une image signée par une AUTRE clé que celle de la plateforme est admise : la "
+        "politique vérifie qu'une signature existe, pas qui l'a posée.",
     )
 
 
 def test_une_image_d_un_autre_registre_est_refusee_dans_notes_api(cluster) -> None:
     banc, _ = cluster
     admis, _ = banc.admettre("notes-api", "dockerhub", IMAGE_BASE_BANC)
-    assert not admis, (
-        f"L'image {IMAGE_BASE_BANC.split('@')[0]} de Docker Hub est admise dans notes-api : "
+    assert not admis, message(
+        en=f"The {IMAGE_BASE_BANC.split('@')[0]} image from Docker Hub is admitted into "
+        "notes-api: the signature check only looks at the internal registry, every "
+        "other registry must be refused too.",
+        fr=f"L'image {IMAGE_BASE_BANC.split('@')[0]} de Docker Hub est admise dans notes-api : "
         "la vérification de signature ne regarde que le registre interne, il faut aussi "
-        "refuser tout autre registre."
+        "refuser tout autre registre.",
     )
-    admis, message = banc.admettre("default", "dockerhub", IMAGE_BASE_BANC)
-    assert admis, (
-        "La même image est refusée dans l'espace de noms default : vos politiques débordent "
-        f"de notes-api et bloqueraient le reste du cluster.\n  {message[-400:]}"
+    admis, sortie = banc.admettre("default", "dockerhub", IMAGE_BASE_BANC)
+    assert admis, message(
+        en="The same image is refused in the default namespace: your policies spill "
+        f"out of notes-api and would block the rest of the cluster.\n  {sortie[-400:]}",
+        fr="La même image est refusée dans l'espace de noms default : vos politiques débordent "
+        f"de notes-api et bloqueraient le reste du cluster.\n  {sortie[-400:]}",
     )
 
 
@@ -162,32 +182,47 @@ def test_les_politiques_sont_bloquantes_et_le_modele_a_jour(projet: Path) -> Non
     docs = _documents(projet)
     cle_projet = (projet / CLE_PLATEFORME).read_text(encoding="utf-8")
     types = {doc.get("kind") for _, doc in docs}
-    assert "ClusterPolicy" not in types and "Policy" not in types, (
-        "Les politiques kyverno.io/v1 (ClusterPolicy, Policy) sont dépréciées depuis Kyverno "
+    assert "ClusterPolicy" not in types and "Policy" not in types, message(
+        en="The kyverno.io/v1 policies (ClusterPolicy, Policy) are deprecated since "
+        "Kyverno 1.17 and their removal is announced: write ValidatingPolicy and "
+        "ImageValidatingPolicy instead (policies.kyverno.io/v1).",
+        fr="Les politiques kyverno.io/v1 (ClusterPolicy, Policy) sont dépréciées depuis Kyverno "
         "1.17 et leur suppression est annoncée : écrivez des ValidatingPolicy et "
-        "ImageValidatingPolicy (policies.kyverno.io/v1)."
+        "ImageValidatingPolicy (policies.kyverno.io/v1).",
     )
-    assert "ImageValidatingPolicy" in types, "Aucune ImageValidatingPolicy ne vérifie les signatures."
+    assert "ImageValidatingPolicy" in types, message(
+        en="No ImageValidatingPolicy checks the signatures.",
+        fr="Aucune ImageValidatingPolicy ne vérifie les signatures.",
+    )
     for fichier, doc in docs:
         if doc.get("kind") not in TYPES_ACTUELS:
             continue
         spec = doc.get("spec") or {}
         nom = (doc.get("metadata") or {}).get("name")
-        assert "Deny" in (spec.get("validationActions") or []), (
-            f"{fichier.name} : la politique {nom} ne refuse rien (validationActions sans Deny) : "
-            "elle se contente de rapporter."
+        assert "Deny" in (spec.get("validationActions") or []), message(
+            en=f"{fichier.name}: the {nom} policy refuses nothing (validationActions "
+            "without Deny): it merely reports.",
+            fr=f"{fichier.name} : la politique {nom} ne refuse rien (validationActions sans Deny) : "
+            "elle se contente de rapporter.",
         )
-        assert spec.get("failurePolicy", "Fail") != "Ignore", (
-            f"{fichier.name} : failurePolicy Ignore admet tout quand Kyverno ne répond pas."
+        assert spec.get("failurePolicy", "Fail") != "Ignore", message(
+            en=f"{fichier.name}: failurePolicy Ignore admits everything when Kyverno "
+            "does not answer.",
+            fr=f"{fichier.name} : failurePolicy Ignore admet tout quand Kyverno ne répond pas.",
         )
     texte = "\n".join(f.read_text(encoding="utf-8") for f in sorted((projet / POLITIQUES).glob("*.y*ml")))
     _, contient = _remplacer_cle(texte, cle_projet, cle_projet)
-    assert contient, f"Aucune politique ne contient la clé publique de la plateforme ({CLE_PLATEFORME})."
+    assert contient, message(
+        en=f"No policy holds the platform's public key ({CLE_PLATEFORME}).",
+        fr=f"Aucune politique ne contient la clé publique de la plateforme ({CLE_PLATEFORME}).",
+    )
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     visees = [m for m in modele.get("threats", []) if str(m.get("id")) == "T-15"]
-    assert visees and visees[0].get("status") == "mitigated", (
-        "La menace T-15 sur l'admission passe à `mitigated`."
+    assert visees and visees[0].get("status") == "mitigated", message(
+        en="The T-15 threat on admission moves to `mitigated`.",
+        fr="La menace T-15 sur l'admission passe à `mitigated`.",
     )
-    assert (projet / str(visees[0].get("evidence") or "")).is_file(), (
-        "La preuve de T-15 doit être un fichier du projet : une politique d'admission."
+    assert (projet / str(visees[0].get("evidence") or "")).is_file(), message(
+        en="The evidence for T-15 must be a file of the project: an admission policy.",
+        fr="La preuve de T-15 doit être un fichier du projet : une politique d'admission.",
     )

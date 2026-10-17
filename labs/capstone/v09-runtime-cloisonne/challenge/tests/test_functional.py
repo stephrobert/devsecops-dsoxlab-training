@@ -30,6 +30,7 @@ from conftest import (
     banc_kind_kyverno,
     executer,
     exiger_workdir,
+    message,
     workdir_lab,
 )
 
@@ -62,7 +63,10 @@ def _documents(projet: Path) -> list[dict]:
 def projet() -> Path:
     exiger_workdir(WORKDIR, LAB_ID)
     if not list((WORKDIR / MANIFESTES).glob("*.y*ml")):
-        pytest.fail(f"Aucun manifeste dans {MANIFESTES}/ : rien à déployer.")
+        pytest.fail(message(
+            en=f"No manifest in {MANIFESTES}/: nothing to deploy.",
+            fr=f"Aucun manifeste dans {MANIFESTES}/ : rien à déployer.",
+        ))
     return WORKDIR
 
 
@@ -71,7 +75,10 @@ def cluster(projet: Path):
     etiquette = f"notes-api-controle:v09-{secrets.token_hex(4)}"
     res = executer(["docker", "build", "-q", "-t", etiquette, "."], cwd=projet, timeout=900)
     if res.returncode != 0:
-        pytest.fail("L'image du projet ne se construit pas :\n" + (res.stdout + res.stderr)[-1500:])
+        pytest.fail(message(
+            en="The project's image does not build:\n" + (res.stdout + res.stderr)[-1500:],
+            fr="L'image du projet ne se construit pas :\n" + (res.stdout + res.stderr)[-1500:],
+        ))
     # L'image cliente se CONSTRUIT : busybox tirée par digest est un index
     # multi-plateforme dont seule la plateforme locale est présente, et
     # `kind load` échoue alors sur « content digest ... not found ».
@@ -79,7 +86,10 @@ def cluster(projet: Path):
         ["docker", "build", "-q", "-t", CLIENT, "-"], entree=f"FROM {IMAGE_BASE_BANC}\n", timeout=300
     )
     if res.returncode != 0:
-        pytest.fail("L'image cliente du banc ne se construit pas :\n" + (res.stdout + res.stderr)[-800:])
+        pytest.fail(message(
+            en="The bench's client image does not build:\n" + (res.stdout + res.stderr)[-800:],
+            fr="L'image cliente du banc ne se construit pas :\n" + (res.stdout + res.stderr)[-800:],
+        ))
     try:
         with banc_kind_kyverno("v09", kyverno=False) as banc:
             banc.charger_image(etiquette)
@@ -160,10 +170,14 @@ def test_l_espace_de_noms_impose_le_standard_restricted(cluster) -> None:
         '"securityContext":{"privileged":true}}]}}',
         "-o", "name", timeout=60,
     )
-    assert privilegie.returncode != 0 and "restricted" in privilegie.stderr, (
-        "Un Pod privilégié est admis dans notes-api : l'espace de noms n'impose pas le standard "
+    assert privilegie.returncode != 0 and "restricted" in privilegie.stderr, message(
+        en="A privileged Pod is admitted into notes-api: the namespace does not enforce "
+        "the restricted Pod Security Standard (the pod-security.kubernetes.io/enforce "
+        "label).\n  "
+        + (privilegie.stdout + privilegie.stderr)[-400:],
+        fr="Un Pod privilégié est admis dans notes-api : l'espace de noms n'impose pas le standard "
         "restricted des Pod Security Standards (label pod-security.kubernetes.io/enforce).\n  "
-        + (privilegie.stdout + privilegie.stderr)[-400:]
+        + (privilegie.stdout + privilegie.stderr)[-400:],
     )
 
 
@@ -172,9 +186,14 @@ def test_notes_api_tourne_sous_le_standard_restricted(cluster) -> None:
     if deploiement.returncode != 0:
         evenements = banc.kubectl("-n", "notes-api", "get", "events", "--sort-by=.lastTimestamp").stdout
         pytest.fail(
-            "Le Deployment notes-api ne devient pas disponible. Sous le standard restricted, "
+            message(
+            en="The notes-api Deployment never becomes available. Under the restricted "
+            "standard, a Pod without a complete securityContext is refused at creation; its "
+            "ReplicaSets say so in the events:\n" + evenements[-1500:],
+            fr="Le Deployment notes-api ne devient pas disponible. Sous le standard restricted, "
             "un Pod sans securityContext complet est refusé à la création ; ses ReplicaSets le "
-            "disent dans les événements :\n" + evenements[-1500:]
+            "disent dans les événements :\n" + evenements[-1500:],
+        )
         )
     # Ce que le noyau applique réellement au processus, pas ce que le manifeste
     # déclare : l'uid, l'interdiction d'escalade (NoNewPrivs) et l'ensemble des
@@ -185,67 +204,95 @@ def test_notes_api_tourne_sous_le_standard_restricted(cluster) -> None:
         for cle, _, valeur in (ligne.partition(":") for ligne in statut.stdout.splitlines())
     )
     uid = champs.get("Uid", "0").split()[0]
-    assert uid != "0", f"notes-api tourne sous l'uid {uid} : il doit tourner sans privilège."
-    assert champs.get("NoNewPrivs") == "1", (
-        "Le processus de notes-api peut encore gagner des privilèges (NoNewPrivs à "
-        f"{champs.get('NoNewPrivs')}) : allowPrivilegeEscalation: false."
+    assert uid != "0", message(
+        en=f"notes-api runs under uid {uid}: it must run unprivileged.",
+        fr=f"notes-api tourne sous l'uid {uid} : il doit tourner sans privilège.",
     )
-    assert int(champs.get("CapBnd", "1"), 16) == 0, (
-        f"Le processus de notes-api garde des capacités Linux (CapBnd {champs.get('CapBnd')}) : "
-        "capabilities: drop: [ALL]."
+    assert champs.get("NoNewPrivs") == "1", message(
+        en="The notes-api process can still gain privileges (NoNewPrivs is "
+        f"{champs.get('NoNewPrivs')}): allowPrivilegeEscalation: false.",
+        fr="Le processus de notes-api peut encore gagner des privilèges (NoNewPrivs à "
+        f"{champs.get('NoNewPrivs')}) : allowPrivilegeEscalation: false.",
+    )
+    assert int(champs.get("CapBnd", "1"), 16) == 0, message(
+        en=f"The notes-api process keeps Linux capabilities (CapBnd {champs.get('CapBnd')}): "
+        "capabilities: drop: [ALL].",
+        fr=f"Le processus de notes-api garde des capacités Linux (CapBnd {champs.get('CapBnd')}) : "
+        "capabilities: drop: [ALL].",
     )
 
 
 def test_seul_le_controleur_d_entree_joint_l_api(cluster) -> None:
     banc, deploiement = cluster
     if deploiement.returncode != 0:
-        pytest.fail("notes-api n'est pas disponible : le trafic ne peut pas être mesuré.")
+        pytest.fail(message(
+            en="notes-api is not available: the traffic cannot be measured.",
+            fr="notes-api n'est pas disponible : le trafic ne peut pas être mesuré.",
+        ))
     joint, sortie = _joindre_l_api(banc, "ingress")
-    assert joint, (
-        "Depuis l'espace de noms ingress, notes-api ne répond pas sur /health : le contrôleur "
-        f"d'entrée doit pouvoir la joindre sur son port.\n  {sortie[-300:]}"
+    assert joint, message(
+        en="From the ingress namespace, notes-api does not answer on /health: the "
+        f"ingress controller must be able to reach it on its port.\n  {sortie[-300:]}",
+        fr="Depuis l'espace de noms ingress, notes-api ne répond pas sur /health : le contrôleur "
+        f"d'entrée doit pouvoir la joindre sur son port.\n  {sortie[-300:]}",
     )
     joint, _ = _joindre_l_api(banc, "default")
-    assert not joint, (
-        "Un Pod de l'espace de noms default joint notes-api : seule l'entrée venue de ingress "
-        "doit passer, tout le reste est refusé."
+    assert not joint, message(
+        en="A Pod from the default namespace reaches notes-api: only ingress traffic "
+        "must get through, everything else is refused.",
+        fr="Un Pod de l'espace de noms default joint notes-api : seule l'entrée venue de ingress "
+        "doit passer, tout le reste est refusé.",
     )
 
 
 def test_notes_api_ne_sort_que_vers_le_dns(cluster) -> None:
     banc, deploiement = cluster
     if deploiement.returncode != 0:
-        pytest.fail("notes-api n'est pas disponible : sa sortie ne peut pas être mesurée.")
+        pytest.fail(message(
+            en="notes-api is not available: its egress cannot be measured.",
+            fr="notes-api n'est pas disponible : sa sortie ne peut pas être mesurée.",
+        ))
     res = banc.kubectl("-n", "notes-api", "exec", "deploy/notes-api", "--", "python", "-c", SONDE_SORTIE, timeout=60)
     sortie = (res.stdout + res.stderr).strip()
-    assert "DNS-KO" not in sortie, (
-        "Depuis notes-api, la résolution DNS échoue : la sortie vers le DNS du cluster "
-        f"(kube-dns, port 53 en UDP et TCP) doit rester ouverte.\n  {sortie[-300:]}"
+    assert "DNS-KO" not in sortie, message(
+        en="From notes-api, DNS resolution fails: outbound traffic to the cluster's DNS "
+        f"(kube-dns, port 53 in UDP and TCP) must stay open.\n  {sortie[-300:]}",
+        fr="Depuis notes-api, la résolution DNS échoue : la sortie vers le DNS du cluster "
+        f"(kube-dns, port 53 en UDP et TCP) doit rester ouverte.\n  {sortie[-300:]}",
     )
-    assert "SORTIE-FERMEE" in sortie, (
-        "Depuis notes-api, un serveur de l'espace de noms default répond : un attaquant qui "
-        "prend la main sur l'application rebondirait vers le reste du cluster.\n  " + sortie[-300:]
+    assert "SORTIE-FERMEE" in sortie, message(
+        en="From notes-api, a server in the default namespace answers: an attacker who "
+        "takes over the application would pivot into the rest of the cluster.\n  " + sortie[-300:],
+        fr="Depuis notes-api, un serveur de l'espace de noms default répond : un attaquant qui "
+        "prend la main sur l'application rebondirait vers le reste du cluster.\n  " + sortie[-300:],
     )
 
 
 def test_le_pod_ne_porte_pas_de_jeton_et_le_modele_a_jour(cluster, projet: Path) -> None:
     banc, deploiement = cluster
     if deploiement.returncode != 0:
-        pytest.fail("notes-api n'est pas disponible : son Pod ne peut pas être inspecté.")
+        pytest.fail(message(
+            en="notes-api is not available: its Pod cannot be inspected.",
+            fr="notes-api n'est pas disponible : son Pod ne peut pas être inspecté.",
+        ))
     jeton = banc.kubectl(
         "-n", "notes-api", "exec", "deploy/notes-api", "--", "python", "-c",
         "import os; print(os.path.exists('/var/run/secrets/kubernetes.io/serviceaccount/token'))",
         timeout=40,
     )
-    assert jeton.stdout.strip() == "False", (
-        "Le Pod de notes-api monte un jeton de l'API Kubernetes, dont l'application ne se sert "
-        "pas : volé, il ouvre l'API du cluster. automountServiceAccountToken: false."
+    assert jeton.stdout.strip() == "False", message(
+        en="The notes-api Pod mounts a Kubernetes API token the application never uses: "
+        "stolen, it opens the cluster's API. automountServiceAccountToken: false.",
+        fr="Le Pod de notes-api monte un jeton de l'API Kubernetes, dont l'application ne se sert "
+        "pas : volé, il ouvre l'API du cluster. automountServiceAccountToken: false.",
     )
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     visees = [m for m in modele.get("threats", []) if str(m.get("id")) == "T-16"]
-    assert visees and visees[0].get("status") == "mitigated", (
-        "La menace T-16 sur le Pod de notes-api passe à `mitigated`."
+    assert visees and visees[0].get("status") == "mitigated", message(
+        en="The T-16 threat on the notes-api Pod moves to `mitigated`.",
+        fr="La menace T-16 sur le Pod de notes-api passe à `mitigated`.",
     )
-    assert (projet / str(visees[0].get("evidence") or "")).is_file(), (
-        "La preuve de T-16 doit être un fichier du projet : un manifeste de deploy/k8s/."
+    assert (projet / str(visees[0].get("evidence") or "")).is_file(), message(
+        en="The evidence for T-16 must be a file of the project: a manifest from deploy/k8s/.",
+        fr="La preuve de T-16 doit être un fichier du projet : un manifeste de deploy/k8s/.",
     )

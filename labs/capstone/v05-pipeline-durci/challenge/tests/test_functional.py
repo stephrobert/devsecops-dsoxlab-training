@@ -33,6 +33,7 @@ from conftest import (
     exiger_workflows,
     jouer_act,
     lire_workflows,
+    message,
     workdir_lab,
 )
 
@@ -171,40 +172,57 @@ def _codeowners(projet: Path) -> str | None:
 
 def test_l_audit_des_workflows_tourne_et_le_projet_passe(projet: Path) -> None:
     res = jouer_act(projet, "pull_request")
-    assert _vert(res), "Sur une pull request, le pipeline doit être vert.\n  " + res.resume()
-    assert any("No findings to report" in ligne for ligne in res.lignes), (
-        "Le pipeline ne montre aucun audit de sécurité des workflows (la ligne "
-        "« No findings to report » de zizmor), ou zizmor y trouve encore des "
-        "failles.\n  " + res.resume()
+    assert _vert(res), message(
+        en="On a pull request, the pipeline must be green.\n  " + res.resume(),
+        fr="Sur une pull request, le pipeline doit être vert.\n  " + res.resume(),
     )
-    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), (
-        "Les tests de l'application ne tournent plus dans le pipeline.\n  " + res.resume()
+    assert any("No findings to report" in ligne for ligne in res.lignes), message(
+        en="The pipeline shows no security audit of the workflows (zizmor's "
+        "« No findings to report » line), or zizmor still finds flaws "
+        "there.\n  " + res.resume(),
+        fr="Le pipeline ne montre aucun audit de sécurité des workflows (la ligne "
+        "« No findings to report » de zizmor), ou zizmor y trouve encore des "
+        "failles.\n  " + res.resume(),
+    )
+    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), message(
+        en="The application's tests no longer run in the pipeline.\n  " + res.resume(),
+        fr="Les tests de l'application ne tournent plus dans le pipeline.\n  " + res.resume(),
     )
 
 
 def test_une_pull_request_piegee_arrete_le_pipeline(projet: Path) -> None:
     res = _avec_workflow(projet, "preview.yml", WORKFLOW_PWN_REQUEST)
-    assert _rouge(res), (
-        "Une copie qui ajoute un workflow pull_request_target récupérant le code de la "
+    assert _rouge(res), message(
+        en="A copy that adds a pull_request_target workflow checking out the "
+        "pull request's code must turn the pipeline red: the workflow "
+        "security audit must BLOCK.\n  " + res.resume(),
+        fr="Une copie qui ajoute un workflow pull_request_target récupérant le code de la "
         "pull request doit rendre le pipeline rouge : l'audit de sécurité des workflows "
-        "doit BLOQUER.\n  " + res.resume()
+        "doit BLOQUER.\n  " + res.resume(),
     )
-    assert any("dangerous-triggers" in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur l'audit de sécurité : zizmor n'a pas "
-        "signalé de dangerous-triggers.\n  " + res.resume()
+    assert any("dangerous-triggers" in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the security audit: zizmor did not "
+        "report dangerous-triggers.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur l'audit de sécurité : zizmor n'a pas "
+        "signalé de dangerous-triggers.\n  " + res.resume(),
     )
 
 
 def test_une_erreur_de_syntaxe_de_workflow_arrete_le_pipeline(projet: Path) -> None:
     res = _avec_workflow(projet, "nightly.yml", WORKFLOW_CRON_FAUX)
-    assert _rouge(res), (
-        "Une copie qui ajoute un workflow au cron impossible (25 heures) doit rendre "
+    assert _rouge(res), message(
+        en="A copy that adds a workflow with an impossible cron (25 hours) must "
+        "turn the pipeline red: GitHub would never trigger it, and would "
+        "tell nobody.\n  " + res.resume(),
+        fr="Une copie qui ajoute un workflow au cron impossible (25 heures) doit rendre "
         "le pipeline rouge : GitHub ne le déclencherait jamais, sans prévenir "
-        "personne.\n  " + res.resume()
+        "personne.\n  " + res.resume(),
     )
-    assert any("CRON" in ligne for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur la vérification de syntaxe : actionlint "
-        "n'a pas signalé le cron invalide.\n  " + res.resume()
+    assert any("CRON" in ligne for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the syntax check: actionlint did not "
+        "report the invalid cron.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur la vérification de syntaxe : actionlint "
+        "n'a pas signalé le cron invalide.\n  " + res.resume(),
     )
 
 
@@ -213,10 +231,14 @@ def test_aucun_workflow_privilegie_n_execute_la_pull_request(projet: Path) -> No
         for ident, job in (workflow.get("jobs") or {}).items():
             for pas in job.get("steps") or []:
                 script = str(pas.get("run", "")) if isinstance(pas, dict) else ""
-                assert not CHAMPS_ATTAQUANT.search(script), (
-                    f"Le job `{ident}` de {fichier} colle un champ de la pull request "
+                assert not CHAMPS_ATTAQUANT.search(script), message(
+                    en=f"The `{ident}` job of {fichier} pastes a pull request field (title, "
+                    "body, branch) into a script: that is shell written by the "
+                    "pull request's author. Pass it through an environment "
+                    "variable.",
+                    fr=f"Le job `{ident}` de {fichier} colle un champ de la pull request "
                     "(titre, corps, branche) dans un script : c'est du shell que l'auteur "
-                    "de la pull request écrit. Passez-le par une variable d'environnement."
+                    "de la pull request écrit. Passez-le par une variable d'environnement.",
                 )
         if "pull_request_target" not in declencheurs(workflow):
             continue
@@ -226,39 +248,57 @@ def test_aucun_workflow_privilegie_n_execute_la_pull_request(projet: Path) -> No
                     continue
                 if str(pas.get("uses", "")).startswith("actions/checkout"):
                     ref = str((pas.get("with") or {}).get("ref", ""))
-                    assert not re.search(r"pull_request|head|merge", ref), (
-                        f"Le job `{ident}` de {fichier} se déclenche sur "
+                    assert not re.search(r"pull_request|head|merge", ref), message(
+                        en=f"The `{ident}` job of {fichier} triggers on pull_request_target, "
+                        f"with a write token, and checks out the proposed code "
+                        f"({ref}). That code then runs with the repository's "
+                        "rights. A contribution's tests run on pull_request.",
+                        fr=f"Le job `{ident}` de {fichier} se déclenche sur "
                         f"pull_request_target, avec un jeton en écriture, et récupère le "
                         f"code proposé ({ref}). Ce code s'exécute alors avec les droits "
-                        "du dépôt. Les tests d'une contribution tournent sur pull_request."
+                        "du dépôt. Les tests d'une contribution tournent sur pull_request.",
                     )
                 commande = str(pas.get("run", ""))
-                assert not re.search(r"\b(uv|pip|pytest|npm|make|python)\b", commande), (
-                    f"Le job `{ident}` de {fichier} exécute `{commande.strip()[:60]}` "
-                    "dans un déclencheur privilégié."
+                assert not re.search(r"\b(uv|pip|pytest|npm|make|python)\b", commande), message(
+                    en=f"The `{ident}` job of {fichier} runs `{commande.strip()[:60]}` "
+                    "inside a privileged trigger.",
+                    fr=f"Le job `{ident}` de {fichier} exécute `{commande.strip()[:60]}` "
+                    "dans un déclencheur privilégié.",
                 )
 
 
 def test_l_equipe_securite_relit_les_chemins_sensibles(projet: Path) -> None:
     codeowners = _codeowners(projet)
-    assert codeowners is not None, (
-        "Aucun fichier CODEOWNERS (.github/CODEOWNERS, CODEOWNERS ou docs/CODEOWNERS) : "
-        "rien n'impose une revue de l'équipe sécurité sur les workflows."
+    assert codeowners is not None, message(
+        en="No CODEOWNERS file (.github/CODEOWNERS, CODEOWNERS or "
+        "docs/CODEOWNERS): nothing requires a review from the security team "
+        "on the workflows.",
+        fr="Aucun fichier CODEOWNERS (.github/CODEOWNERS, CODEOWNERS ou docs/CODEOWNERS) : "
+        "rien n'impose une revue de l'équipe sécurité sur les workflows.",
     )
     for chemin in CHEMINS_SENSIBLES:
         proprietaires = _proprietaires(codeowners, chemin)
-        assert EQUIPE_SECURITE in proprietaires, (
-            f"Une modification de {chemin} revient à {proprietaires or 'personne'} : "
+        assert EQUIPE_SECURITE in proprietaires, message(
+            en=f"A change to {chemin} goes to {proprietaires or 'nobody'}: "
+            f"{EQUIPE_SECURITE} must review it. In CODEOWNERS, the last "
+            "matching line wins.",
+            fr=f"Une modification de {chemin} revient à {proprietaires or 'personne'} : "
             f"{EQUIPE_SECURITE} doit la relire. Dans CODEOWNERS, la dernière ligne qui "
-            "correspond l'emporte."
+            "correspond l'emporte.",
         )
     proprietaires_app = _proprietaires(codeowners, "src/notes_api/app.py")
-    assert proprietaires_app, "Le code de l'application n'a aucun propriétaire dans CODEOWNERS."
+    assert proprietaires_app, message(
+        en="The application's code has no owner in CODEOWNERS.",
+        fr="Le code de l'application n'a aucun propriétaire dans CODEOWNERS.",
+    )
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     visees = [m for m in modele.get("threats", []) if str(m.get("id")) == "T-13"]
-    assert visees and visees[0].get("status") == "mitigated", (
-        "La menace T-13 sur les workflows de pull request passe à `mitigated`."
+    assert visees and visees[0].get("status") == "mitigated", message(
+        en="The T-13 threat on pull request workflows moves to `mitigated`.",
+        fr="La menace T-13 sur les workflows de pull request passe à `mitigated`.",
     )
-    assert (projet / str(visees[0].get("evidence") or "")).is_file(), (
-        "La preuve de T-13 doit être un fichier du projet : CODEOWNERS ou le pipeline."
+    assert (projet / str(visees[0].get("evidence") or "")).is_file(), message(
+        en="The evidence for T-13 must be a file of the project: CODEOWNERS or "
+        "the pipeline.",
+        fr="La preuve de T-13 doit être un fichier du projet : CODEOWNERS ou le pipeline.",
     )

@@ -33,6 +33,7 @@ from conftest import (
     exiger_workdir,
     exiger_workflows,
     jouer_act,
+    message,
     workdir_lab,
 )
 
@@ -103,7 +104,10 @@ def _alerte_sonne(projet: Path, tmp_path: Path, erreurs: int, succes: int) -> li
     )
     sortie = res.stdout + res.stderr
     if res.returncode != 0 and "got:" not in sortie:
-        pytest.fail(f"promtool refuse vos règles ({ALERTES}) :\n{sortie[-1200:]}")
+        pytest.fail(message(
+            en=f"promtool refuses your rules ({ALERTES}):\n{sortie[-1200:]}",
+            fr=f"promtool refuse vos règles ({ALERTES}) :\n{sortie[-1200:]}",
+        ))
     return re.findall(rf"alertname: {ALERTE}, time: ([0-9hm]+),\s*\n\s*exp:\[\],\s*\n\s*got:\[\s*\n\s*0:", sortie)
 
 
@@ -153,78 +157,114 @@ def _reference(deploiements: list[dict], incidents: list[dict]) -> dict:
 
 def test_le_pipeline_verifie_l_alerte_et_mesure_la_livraison(projet: Path) -> None:
     res = jouer_act(projet, "pull_request")
-    assert _vert(res), "Sur une pull request, le pipeline doit être vert.\n  " + res.resume()
-    assert any(re.search(r"SUCCESS: \d+ rules found", ligne) for ligne in res.lignes), (
-        "Le pipeline ne vérifie pas les règles d'alerte (promtool check rules).\n  " + res.resume()
+    assert _vert(res), message(
+        en="On a pull request, the pipeline must be green.\n  " + res.resume(),
+        fr="Sur une pull request, le pipeline doit être vert.\n  " + res.resume(),
     )
-    assert any("deployments_per_week" in ligne for ligne in res.lignes), (
-        "Le pipeline ne calcule pas les métriques DORA (scripts/dora.py).\n  " + res.resume()
+    assert any(re.search(r"SUCCESS: \d+ rules found", ligne) for ligne in res.lignes), message(
+        en="The pipeline does not check the alerting rules (promtool check rules).\n  " + res.resume(),
+        fr="Le pipeline ne vérifie pas les règles d'alerte (promtool check rules).\n  " + res.resume(),
+    )
+    assert any("deployments_per_week" in ligne for ligne in res.lignes), message(
+        en="The pipeline does not compute the DORA metrics (scripts/dora.py).\n  " + res.resume(),
+        fr="Le pipeline ne calcule pas les métriques DORA (scripts/dora.py).\n  " + res.resume(),
     )
 
 
 def test_l_alerte_sonne_quand_le_budget_brule_et_seulement_la(projet: Path, tmp_path: Path) -> None:
-    assert (projet / ALERTES).is_file(), f"{ALERTES} est introuvable : rien ne prévient l'astreinte."
+    assert (projet / ALERTES).is_file(), message(
+        en=f"{ALERTES} cannot be found: nothing warns the on-call engineer.",
+        fr=f"{ALERTES} est introuvable : rien ne prévient l'astreinte.",
+    )
     brulure = _alerte_sonne(projet, tmp_path, erreurs=10, succes=90)
-    assert brulure and "1h30m" in brulure, (
-        f"Avec 10 % d'erreurs pendant deux heures, {ALERTE} ne sonne pas à 1h30 (instants vus : "
+    assert brulure and "1h30m" in brulure, message(
+        en=f"With 10 % errors for two hours, {ALERTE} does not fire at 1h30 (instants seen: "
+        f"{brulure or 'none'}): at that rate, the 0.5 % budget over 28 days is gone in less "
+        "than three days, and the on-call engineer must be woken.",
+        fr=f"Avec 10 % d'erreurs pendant deux heures, {ALERTE} ne sonne pas à 1h30 (instants vus : "
         f"{brulure or 'aucun'}) : à ce rythme, le budget de 0,5 % sur 28 jours part en moins de "
-        "trois jours, et l'astreinte doit être réveillée."
+        "trois jours, et l'astreinte doit être réveillée.",
     )
     calme = _alerte_sonne(projet, tmp_path, erreurs=1, succes=99)
-    assert not calme, (
-        f"Avec 1 % d'erreurs, {ALERTE} sonne ({calme}) : une alerte qui réveille pour une "
-        "consommation lente du budget finit par être ignorée."
+    assert not calme, message(
+        en=f"With 1 % errors, {ALERTE} fires ({calme}): an alert that wakes someone for a "
+        "slow burn of the budget ends up ignored.",
+        fr=f"Avec 1 % d'erreurs, {ALERTE} sonne ({calme}) : une alerte qui réveille pour une "
+        "consommation lente du budget finit par être ignorée.",
     )
 
 
 def test_les_metriques_dora_sont_justes(projet: Path, tmp_path: Path) -> None:
     script = projet / "scripts" / "dora.py"
-    assert script.is_file(), "scripts/dora.py est introuvable."
+    assert script.is_file(), message(
+        en="scripts/dora.py cannot be found.",
+        fr="scripts/dora.py est introuvable.",
+    )
     for graine in (3, 17, 42):
         deploiements, incidents = _journaux(graine)
         journal_d, journal_i = tmp_path / f"d{graine}.jsonl", tmp_path / f"i{graine}.jsonl"
         journal_d.write_text("".join(json.dumps(d) + "\n" for d in deploiements), encoding="utf-8")
         journal_i.write_text("".join(json.dumps(i) + "\n" for i in incidents), encoding="utf-8")
         res = executer(["python3", str(script), str(journal_d), str(journal_i)], timeout=60)
-        assert res.returncode == 0, f"scripts/dora.py échoue :\n{(res.stdout + res.stderr)[-600:]}"
+        assert res.returncode == 0, message(
+            en=f"scripts/dora.py fails:\n{(res.stdout + res.stderr)[-600:]}",
+            fr=f"scripts/dora.py échoue :\n{(res.stdout + res.stderr)[-600:]}",
+        )
         try:
             obtenu = json.loads(res.stdout)
         except ValueError:
-            pytest.fail(f"scripts/dora.py n'écrit pas un objet JSON :\n{res.stdout[-400:]}")
+            pytest.fail(message(
+                en=f"scripts/dora.py does not write a JSON object:\n{res.stdout[-400:]}",
+                fr=f"scripts/dora.py n'écrit pas un objet JSON :\n{res.stdout[-400:]}",
+            ))
         attendu = _reference(deploiements, incidents)
         for cle, valeur in attendu.items():
-            assert obtenu.get(cle) == valeur, (
-                f"{cle} vaut {obtenu.get(cle)!r}, la définition du scénario donne {valeur!r} "
-                f"({len(deploiements)} déploiements, {len(incidents)} incidents)."
+            assert obtenu.get(cle) == valeur, message(
+                en=f"{cle} is {obtenu.get(cle)!r}, the scenario's definition gives {valeur!r} "
+                f"({len(deploiements)} deployments, {len(incidents)} incidents).",
+                fr=f"{cle} vaut {obtenu.get(cle)!r}, la définition du scénario donne {valeur!r} "
+                f"({len(deploiements)} déploiements, {len(incidents)} incidents).",
             )
 
 
 def test_le_runbook_guide_l_astreinte(projet: Path) -> None:
-    assert (projet / RUNBOOK).is_file(), f"{RUNBOOK} est introuvable : l'astreinte n'a aucune procédure."
+    assert (projet / RUNBOOK).is_file(), message(
+        en=f"{RUNBOOK} cannot be found: the on-call engineer has no procedure.",
+        fr=f"{RUNBOOK} est introuvable : l'astreinte n'a aucune procédure.",
+    )
     texte = (projet / RUNBOOK).read_text(encoding="utf-8")
     titres = [x for x in texte.splitlines() if x.startswith("#")]
     for nom, motif in SECTIONS.items():
-        assert any(re.search(motif, t, re.I) for t in titres), f"Le runbook n'a pas de section {nom}."
+        assert any(re.search(motif, t, re.I) for t in titres), message(
+            en=f"The runbook has no {nom} section.",
+            fr=f"Le runbook n'a pas de section {nom}.",
+        )
     commandes = re.findall(r"^\s*(kubectl .+)$", texte, re.M)
-    assert any("rollout undo" in c for c in commandes), (
-        "Le runbook ne dit pas comment revenir à la version précédente (kubectl rollout undo)."
+    assert any("rollout undo" in c for c in commandes), message(
+        en="The runbook does not say how to roll back to the previous version "
+        "(kubectl rollout undo).",
+        fr="Le runbook ne dit pas comment revenir à la version précédente (kubectl rollout undo).",
     )
     for commande in commandes:
-        assert re.search(r"(-n|--namespace)[ =]notes-api\b", commande), (
-            f"Commande sans espace de noms : « {commande.strip()} ». À 3 heures du matin, elle "
-            "viserait le mauvais contexte."
+        assert re.search(r"(-n|--namespace)[ =]notes-api\b", commande), message(
+            en=f"Command with no namespace: « {commande.strip()} ». At three in the morning, "
+            "it would target the wrong context.",
+            fr=f"Commande sans espace de noms : « {commande.strip()} ». À 3 heures du matin, elle "
+            "viserait le mauvais contexte.",
         )
         cible = re.search(r"\b(deployment|deploy)/(\S+)", commande)
-        assert not cible or cible.group(2) == "notes-api", (
-            f"« {commande.strip()} » vise {cible.group(0)}, qui n'existe pas dans deploy/k8s/."
+        assert not cible or cible.group(2) == "notes-api", message(
+            en=f"« {commande.strip()} » targets {cible.group(0)}, which does not exist in deploy/k8s/.",
+            fr=f"« {commande.strip()} » vise {cible.group(0)}, qui n'existe pas dans deploy/k8s/.",
         )
     regles = yaml.safe_load((projet / ALERTES).read_text(encoding="utf-8"))
     alerte = next(
         (r for g in regles.get("groups", []) for r in g.get("rules", []) if r.get("alert") == ALERTE), {}
     )
     lien = str((alerte.get("annotations") or {}).get("runbook_url", ""))
-    assert lien.endswith(RUNBOOK.as_posix()), (
-        f"L'alerte {ALERTE} ne renvoie pas au runbook (annotation runbook_url : « {lien} »)."
+    assert lien.endswith(RUNBOOK.as_posix()), message(
+        en=f"The {ALERTE} alert does not point at the runbook (runbook_url annotation: « {lien} »).",
+        fr=f"L'alerte {ALERTE} ne renvoie pas au runbook (annotation runbook_url : « {lien} »).",
     )
 
 
@@ -233,11 +273,19 @@ def test_une_regle_cassee_arrete_le_pipeline_et_le_modele_a_jour(projet: Path) -
         fichier = copie / ALERTES
         fichier.write_text(fichier.read_text(encoding="utf-8").replace("rate(", "rat(", 1), encoding="utf-8")
         res = jouer_act(copie, "pull_request")
-    assert _rouge(res), (
-        "Une copie dont la règle d'alerte ne se parse plus doit rendre le pipeline rouge : une "
-        "alerte cassée ne sonne jamais, et personne ne le voit.\n  " + res.resume()
+    assert _rouge(res), message(
+        en="A copy whose alerting rule no longer parses must turn the pipeline red: a "
+        "broken alert never fires, and nobody notices.\n  " + res.resume(),
+        fr="Une copie dont la règle d'alerte ne se parse plus doit rendre le pipeline rouge : une "
+        "alerte cassée ne sonne jamais, et personne ne le voit.\n  " + res.resume(),
     )
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     visees = [m for m in modele.get("threats", []) if str(m.get("id")) == "T-18"]
-    assert visees and visees[0].get("status") == "mitigated", "La menace T-18 passe à `mitigated`."
-    assert (projet / str(visees[0].get("evidence") or "")).is_file(), "La preuve de T-18 doit exister."
+    assert visees and visees[0].get("status") == "mitigated", message(
+        en="The T-18 threat moves to `mitigated`.",
+        fr="La menace T-18 passe à `mitigated`.",
+    )
+    assert (projet / str(visees[0].get("evidence") or "")).is_file(), message(
+        en="The evidence for T-18 must exist.",
+        fr="La preuve de T-18 doit exister.",
+    )

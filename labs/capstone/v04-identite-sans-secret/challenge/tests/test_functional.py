@@ -43,6 +43,7 @@ from conftest import (
     exiger_workflows,
     jouer_act,
     lire_workflows,
+    message,
     references_uses,
     workdir_lab,
 )
@@ -76,9 +77,11 @@ def _jobs_de_deploiement(projet: Path) -> list[tuple[str, str, dict]]:
 
 def _exiger_deploiement(projet: Path) -> tuple[str, str, dict]:
     jobs = _jobs_de_deploiement(projet)
-    assert jobs, (
-        "Plus aucun job ne s'authentifie auprès d'AWS : notes-api doit toujours être "
-        f"publiée. Le job de déploiement garde son étape {CONFIGURE_AWS}."
+    assert jobs, message(
+        en="No job authenticates to AWS any more: notes-api must still be "
+        f"published. The deployment job keeps its {CONFIGURE_AWS} step.",
+        fr="Plus aucun job ne s'authentifie auprès d'AWS : notes-api doit toujours être "
+        f"publiée. Le job de déploiement garde son étape {CONFIGURE_AWS}.",
     )
     return jobs[0]
 
@@ -93,8 +96,12 @@ def _liste(valeur) -> list:
 def _condition_tenue(operateur: str, attendu, jeton: dict) -> bool:
     if operateur not in OPERATEURS:
         pytest.fail(
-            f"La politique emploie l'opérateur {operateur}, que ce contrôle ne sait pas "
-            f"évaluer. Exprimez les conditions avec {' ou '.join(sorted(OPERATEURS))}."
+            message(
+            en=f"The policy uses the {operateur} operator, which this check cannot "
+            f"evaluate. Express the conditions with {' or '.join(sorted(OPERATEURS))}.",
+            fr=f"La politique emploie l'opérateur {operateur}, que ce contrôle ne sait pas "
+            f"évaluer. Exprimez les conditions avec {' ou '.join(sorted(OPERATEURS))}.",
+        )
         )
     for cle, valeurs in attendu.items():
         nom = cle.split(":", 1)[1] if cle.startswith(FOURNISSEUR + ":") else None
@@ -158,17 +165,24 @@ def test_ni_une_branche_ni_une_pull_request_ne_deploient(projet: Path) -> None:
     pr = jouer_act(projet, "pull_request")
     for nom, res in (("un push sur la branche feature", branche), ("une pull request", pr)):
         autres = [j for j in res.jobs if j != ident]
-        assert autres and all(res.job(j) == "success" for j in autres), (
-            f"Sur {nom}, les tests doivent rester verts.\n  " + res.resume()
+        assert autres and all(res.job(j) == "success" for j in autres), message(
+            en=f"On {nom}, the tests must stay green.\n  " + res.resume(),
+            fr=f"Sur {nom}, les tests doivent rester verts.\n  " + res.resume(),
         )
-        assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), (
-            f"Sur {nom}, les tests de l'application ne tournent plus.\n  " + res.resume()
+        assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), message(
+            en=f"On {nom}, the application's tests no longer run.\n  " + res.resume(),
+            fr=f"Sur {nom}, les tests de l'application ne tournent plus.\n  " + res.resume(),
         )
-        assert ident not in res.jobs, (
-            f"Sur {nom}, le job `{ident}` de {fichier} démarre : seul un push sur main "
+        assert ident not in res.jobs, message(
+            en=f"On {nom}, the `{ident}` job of {fichier} starts: only a push to main "
+            "publishes a version. A branch or a pull request that deploy are "
+            "the way in that the trust policy will have to close on its "
+            "side.\n  "
+            + res.resume(),
+            fr=f"Sur {nom}, le job `{ident}` de {fichier} démarre : seul un push sur main "
             "publie une version. Une branche ou une pull request qui déploient sont la "
             "porte d'entrée que la politique de confiance devra fermer de son côté.\n  "
-            + res.resume()
+            + res.resume(),
         )
 
 
@@ -176,90 +190,125 @@ def test_aucune_cle_statique_ni_dans_le_pipeline_ni_dans_l_infra(projet: Path) -
     for fichier in exiger_workflows(projet):
         texte = fichier.read_text(encoding="utf-8")
         secrets = sorted(set(re.findall(r"secrets\.(\w+)", texte)) - {"GITHUB_TOKEN"})
-        assert not secrets, (
-            f"{fichier.relative_to(projet)} lit encore {', '.join(secrets)} : un secret de "
-            "dépôt est une clé de longue durée, que tout job qui la reçoit peut exfiltrer."
+        assert not secrets, message(
+            en=f"{fichier.relative_to(projet)} still reads {', '.join(secrets)}: a "
+            "repository secret is a long-lived key, which any job that "
+            "receives it can exfiltrate.",
+            fr=f"{fichier.relative_to(projet)} lit encore {', '.join(secrets)} : un secret de "
+            "dépôt est une clé de longue durée, que tout job qui la reçoit peut exfiltrer.",
         )
     for _fichier, ident, job in _jobs_de_deploiement(projet):
         for pas in job.get("steps") or []:
             if isinstance(pas, dict) and str(pas.get("uses", "")).startswith(CONFIGURE_AWS):
                 statiques = sorted(ENTREES_STATIQUES & set(pas.get("with") or {}))
-                assert not statiques, (
-                    f"Le job `{ident}` passe encore {', '.join(statiques)} à {CONFIGURE_AWS}."
+                assert not statiques, message(
+                    en=f"The `{ident}` job still passes {', '.join(statiques)} to {CONFIGURE_AWS}.",
+                    fr=f"Le job `{ident}` passe encore {', '.join(statiques)} à {CONFIGURE_AWS}.",
                 )
     infra = "\n".join(p.read_text(encoding="utf-8") for p in sorted((projet / "infra").glob("*.tf")))
     for ressource in ("aws_iam_access_key", "aws_iam_user"):
-        assert not re.search(rf'resource\s+"{ressource}"', infra), (
-            f"infra/ déclare encore une ressource {ressource} : tant que l'utilisateur et "
+        assert not re.search(rf'resource\s+"{ressource}"', infra), message(
+            en=f"infra/ still declares a {ressource} resource: as long as the user "
+            "and its key exist, the key copied into the secrets stays valid. "
+            "Removing it from the code revokes it at the next apply.",
+            fr=f"infra/ déclare encore une ressource {ressource} : tant que l'utilisateur et "
             "sa clé existent, la clé copiée dans les secrets reste valable. La supprimer "
-            "du code, c'est la révoquer au prochain apply."
+            "du code, c'est la révoquer au prochain apply.",
         )
 
 
 def test_seul_le_job_de_deploiement_obtient_un_jeton_oidc(projet: Path) -> None:
     fichier, ident, job = _exiger_deploiement(projet)
     workflow = lire_workflows(projet)[fichier]
-    assert "id-token" not in (workflow.get("permissions") or {}), (
-        f"{fichier} accorde id-token au niveau du workflow : chaque job pourrait alors "
-        "demander un jeton. La permission se déclare sur le seul job qui déploie."
+    assert "id-token" not in (workflow.get("permissions") or {}), message(
+        en=f"{fichier} grants id-token at workflow level: every job could then ask "
+        "for a token. The permission is declared on the single job that "
+        "deploys.",
+        fr=f"{fichier} accorde id-token au niveau du workflow : chaque job pourrait alors "
+        "demander un jeton. La permission se déclare sur le seul job qui déploie.",
     )
-    assert (job.get("permissions") or {}).get("id-token") == "write", (
-        f"Le job `{ident}` ne déclare pas `id-token: write` : sans elle, GitHub ne lui "
-        "remet aucun jeton OIDC à échanger contre des identifiants."
+    assert (job.get("permissions") or {}).get("id-token") == "write", message(
+        en=f"The `{ident}` job does not declare `id-token: write`: without it, "
+        "GitHub hands it no OIDC token to exchange for credentials.",
+        fr=f"Le job `{ident}` ne déclare pas `id-token: write` : sans elle, GitHub ne lui "
+        "remet aucun jeton OIDC à échanger contre des identifiants.",
     )
     for autre_fichier, autre in lire_workflows(projet).items():
         for autre_id, autre_job in (autre.get("jobs") or {}).items():
             if (autre_fichier, autre_id) != (fichier, ident):
-                assert (autre_job.get("permissions") or {}).get("id-token") != "write", (
-                    f"Le job `{autre_id}` de {autre_fichier} obtient aussi un jeton OIDC."
+                assert (autre_job.get("permissions") or {}).get("id-token") != "write", message(
+                    en=f"The `{autre_id}` job of {autre_fichier} also obtains an OIDC token.",
+                    fr=f"Le job `{autre_id}` de {autre_fichier} obtient aussi un jeton OIDC.",
                 )
     pas = next(p for p in job["steps"] if str(p.get("uses", "")).startswith(CONFIGURE_AWS))
-    assert str((pas.get("with") or {}).get("role-to-assume", "")).startswith("arn:aws:iam::"), (
-        f"L'étape {CONFIGURE_AWS} doit nommer le rôle à endosser (`role-to-assume`)."
+    assert str((pas.get("with") or {}).get("role-to-assume", "")).startswith("arn:aws:iam::"), message(
+        en=f"The {CONFIGURE_AWS} step must name the role to assume "
+        "(`role-to-assume`).",
+        fr=f"L'étape {CONFIGURE_AWS} doit nommer le rôle à endosser (`role-to-assume`).",
     )
     refs = [r for r in references_uses(projet) if r.action == CONFIGURE_AWS]
-    assert refs and all(r.epinglee_par_sha for r in refs), (
-        f"{CONFIGURE_AWS} reçoit le jeton OIDC : il s'épingle par SHA de commit, comme "
-        "chaque action du pipeline."
+    assert refs and all(r.epinglee_par_sha for r in refs), message(
+        en=f"{CONFIGURE_AWS} receives the OIDC token: it is pinned by commit SHA, "
+        "like every action of the pipeline.",
+        fr=f"{CONFIGURE_AWS} reçoit le jeton OIDC : il s'épingle par SHA de commit, comme "
+        "chaque action du pipeline.",
     )
 
 
 def test_la_politique_de_confiance_n_accepte_que_main(projet: Path) -> None:
     infra = "\n".join(p.read_text(encoding="utf-8") for p in sorted((projet / "infra").glob("*.tf")))
     m = re.search(r'assume_role_policy\s*=\s*file\(\s*"\$\{path\.module\}/([^"]+\.json)"\s*\)', infra)
-    assert m, (
-        "Le rôle de déploiement lit sa politique de confiance dans un fichier JSON du "
+    assert m, message(
+        en="The deployment role reads its trust policy from a JSON file in the "
+        'infra folder: assume_role_policy = file("${path.module}/<file>.json"). '
+        "A separate file can be reviewed and tested.",
+        fr="Le rôle de déploiement lit sa politique de confiance dans un fichier JSON du "
         'dossier infra : assume_role_policy = file("${path.module}/<fichier>.json"). '
-        "Un fichier à part se relit et se teste."
+        "Un fichier à part se relit et se teste.",
     )
     chemin = projet / "infra" / m.group(1)
-    assert chemin.is_file(), f"infra/{m.group(1)} est introuvable."
+    assert chemin.is_file(), message(
+        en=f"infra/{m.group(1)} cannot be found.",
+        fr=f"infra/{m.group(1)} est introuvable.",
+    )
     politique = json.loads(chemin.read_text(encoding="utf-8"))
     fournisseurs = {
         f for d in _liste(politique.get("Statement", []))
         for f in _liste((d.get("Principal") or {}).get("Federated", []))
         if str(f).endswith(f"oidc-provider/{FOURNISSEUR}")
     }
-    assert fournisseurs, f"La politique ne fait confiance à aucun fournisseur OIDC {FOURNISSEUR}."
+    assert fournisseurs, message(
+        en=f"The policy trusts no {FOURNISSEUR} OIDC provider.",
+        fr=f"La politique ne fait confiance à aucun fournisseur OIDC {FOURNISSEUR}.",
+    )
     arn = sorted(fournisseurs)[0]
     for situation, jeton, attendu in SITUATIONS:
-        assert peut_endosser(politique, jeton, arn) is attendu, (
-            f"Pour {situation} (sub = {jeton['sub']}, aud = {jeton['aud']}), la politique "
+        assert peut_endosser(politique, jeton, arn) is attendu, message(
+            en=f"For {situation} (sub = {jeton['sub']}, aud = {jeton['aud']}), the policy "
+            + ("refuses the role: deploying main would fail." if attendu else
+               "ACCEPTS the role: any job in that context would publish a version."),
+            fr=f"Pour {situation} (sub = {jeton['sub']}, aud = {jeton['aud']}), la politique "
             + ("refuse le rôle : le déploiement de main échouerait." if attendu else
-               "ACCEPTE le rôle : n'importe quel job de ce contexte publierait une version.")
+               "ACCEPTE le rôle : n'importe quel job de ce contexte publierait une version."),
         )
 
 
 def test_le_modele_dit_la_cle_retiree_et_sa_preuve(projet: Path) -> None:
     modele = yaml.safe_load((projet / "threat-model.yml").read_text(encoding="utf-8"))
     visees = [m for m in modele.get("threats", []) if str(m.get("id")) == "T-12"]
-    assert visees, "Le modèle ne porte plus la menace T-12 sur les identifiants de déploiement."
+    assert visees, message(
+        en="The model no longer carries the T-12 threat on deployment credentials.",
+        fr="Le modèle ne porte plus la menace T-12 sur les identifiants de déploiement.",
+    )
     menace = visees[0]
-    assert menace.get("status") == "mitigated", (
-        "La clé statique a disparu : la menace T-12 passe à `mitigated`."
+    assert menace.get("status") == "mitigated", message(
+        en="The static key is gone: the T-12 threat moves to `mitigated`.",
+        fr="La clé statique a disparu : la menace T-12 passe à `mitigated`.",
     )
     preuve = projet / str(menace.get("evidence") or "")
-    assert preuve.is_file() and FOURNISSEUR in preuve.read_text(encoding="utf-8"), (
-        "La preuve de T-12 doit être le fichier qui la démontre : la politique de "
-        "confiance du rôle, qui nomme le fournisseur OIDC de GitHub."
+    assert preuve.is_file() and FOURNISSEUR in preuve.read_text(encoding="utf-8"), message(
+        en="The evidence for T-12 must be the file that demonstrates it: the "
+        "role's trust policy, which names GitHub's OIDC provider.",
+        fr="La preuve de T-12 doit être le fichier qui la démontre : la politique de "
+        "confiance du rôle, qui nomme le fournisseur OIDC de GitHub.",
     )

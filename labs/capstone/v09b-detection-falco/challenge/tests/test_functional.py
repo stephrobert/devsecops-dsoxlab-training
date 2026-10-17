@@ -28,7 +28,7 @@ import time
 import pytest
 import yaml
 
-from conftest import lab_host
+from conftest import lab_host, message
 
 HOTE = "falco-1.lab"
 REGLES = "/etc/falco/rules.d/notes-api.yaml"
@@ -46,10 +46,16 @@ def hote():
 
 def _regles(hote) -> set[str]:
     fichier = hote.file(REGLES)
-    assert fichier.exists, f"{REGLES} est introuvable : notes-api n'a aucune règle Falco."
+    assert fichier.exists, message(
+        en=f"{REGLES} cannot be found: notes-api has no Falco rule.",
+        fr=f"{REGLES} est introuvable : notes-api n'a aucune règle Falco.",
+    )
     contenu = yaml.safe_load(fichier.content_string) or []
     noms = {e["rule"] for e in contenu if isinstance(e, dict) and "rule" in e}
-    assert noms, f"{REGLES} ne déclare aucune règle (élément `rule:`)."
+    assert noms, message(
+        en=f"{REGLES} declares no rule (a `rule:` element).",
+        fr=f"{REGLES} ne déclare aucune règle (élément `rule:`).",
+    )
     return noms
 
 
@@ -109,14 +115,17 @@ def test_les_regles_sont_valides_et_falco_tourne(hote) -> None:
     # Les macros communes (spawned_process, open_write...) vivent dans les
     # règles par défaut : la validation charge les deux fichiers.
     validation = hote.run(f"falco -V {REGLES_PAR_DEFAUT} -V {REGLES}")
-    assert validation.rc == 0, (
-        f"Falco refuse {REGLES} :\n{(validation.stdout + validation.stderr)[-800:]}"
+    assert validation.rc == 0, message(
+        en=f"Falco refuses {REGLES}:\n{(validation.stdout + validation.stderr)[-800:]}",
+        fr=f"Falco refuse {REGLES} :\n{(validation.stdout + validation.stderr)[-800:]}",
     )
-    assert hote.service(SERVICE).is_running, (
-        f"{SERVICE} ne tourne plus : des règles chargées par un Falco arrêté ne détectent rien."
+    assert hote.service(SERVICE).is_running, message(
+        en=f"{SERVICE} is no longer running: rules loaded by a stopped Falco detect nothing.",
+        fr=f"{SERVICE} ne tourne plus : des règles chargées par un Falco arrêté ne détectent rien.",
     )
-    assert hote.run("docker inspect -f '{{.State.Running}}' notes-api").stdout.strip() == "true", (
-        "Le conteneur notes-api ne tourne plus."
+    assert hote.run("docker inspect -f '{{.State.Running}}' notes-api").stdout.strip() == "true", message(
+        en="The notes-api container is no longer running.",
+        fr="Le conteneur notes-api ne tourne plus.",
     )
 
 
@@ -125,14 +134,19 @@ def test_un_shell_dans_notes_api_declenche_une_alerte(hote) -> None:
     depuis = _taille(hote)
     marqueur = _provoquer_un_shell(hote)
     alertes = _attendre(hote, depuis, regles, lambda a: _cite(a, "notes-api", marqueur))
-    assert alertes, (
-        "Un shell ouvert dans le conteneur notes-api (docker exec notes-api sh) ne déclenche "
+    assert alertes, message(
+        en="A shell opened inside the notes-api container (docker exec notes-api sh) "
+        f"triggers no alert from your rules within {ATTENTE} s, or the alert quotes "
+        "neither the container nor the command line.",
+        fr="Un shell ouvert dans le conteneur notes-api (docker exec notes-api sh) ne déclenche "
         f"aucune alerte de vos règles en {ATTENTE} s, ou l'alerte ne cite ni le conteneur ni "
-        "la ligne de commande."
+        "la ligne de commande.",
     )
-    assert max(_niveau(a) for a in alertes) >= NIVEAUX.index("warning"), (
-        "Le shell est détecté, mais sous le niveau WARNING : une intrusion dans le conteneur "
-        "ne se range pas avec les informations."
+    assert max(_niveau(a) for a in alertes) >= NIVEAUX.index("warning"), message(
+        en="The shell is detected, but below the WARNING level: an intrusion into the "
+        "container does not belong with the informational entries.",
+        fr="Le shell est détecté, mais sous le niveau WARNING : une intrusion dans le conteneur "
+        "ne se range pas avec les informations.",
     )
 
 
@@ -143,14 +157,19 @@ def test_une_ecriture_dans_le_code_declenche_une_alerte(hote) -> None:
     hote.run(f"docker exec -u 0 notes-api touch /app/src/{marqueur}.py")
     hote.run(f"docker exec -u 0 notes-api rm -f /app/src/{marqueur}.py")
     alertes = _attendre(hote, depuis, regles, lambda a: _cite(a, "notes-api", f"/app/src/{marqueur}.py"))
-    assert alertes, (
-        "Un fichier créé sous /app/src dans notes-api ne déclenche aucune alerte de vos règles "
+    assert alertes, message(
+        en="A file created under /app/src in notes-api triggers no alert from your rules "
+        f"within {ATTENTE} s, or the alert does not quote the file: the code that runs "
+        "can change in silence.",
+        fr="Un fichier créé sous /app/src dans notes-api ne déclenche aucune alerte de vos règles "
         f"en {ATTENTE} s, ou l'alerte ne cite pas le fichier : le code qui tourne peut changer "
-        "en silence."
+        "en silence.",
     )
-    assert max(_niveau(a) for a in alertes) >= NIVEAUX.index("error"), (
-        "L'écriture dans le code est détectée, mais sous le niveau ERROR : modifier le code en "
-        "production est plus grave qu'un shell ouvert."
+    assert max(_niveau(a) for a in alertes) >= NIVEAUX.index("error"), message(
+        en="Writing into the code is detected, but below the ERROR level: changing the "
+        "code in production is more serious than an open shell.",
+        fr="L'écriture dans le code est détectée, mais sous le niveau ERROR : modifier le code en "
+        "production est plus grave qu'un shell ouvert.",
     )
 
 
@@ -162,10 +181,13 @@ def test_l_activite_normale_ne_declenche_rien(hote) -> None:
     hote.run("docker run --rm --entrypoint sh notes-api:v9 -c 'id'")
     time.sleep(8)
     bruit = _alertes(hote, depuis, regles)
-    assert not bruit, (
-        "Vos règles alertent sur ce qui est normal, ou hors de notes-api : "
+    assert not bruit, message(
+        en="Your rules alert on what is normal, or outside notes-api: "
         + "; ".join(f"{a.get('rule')} ({_champ(a, 'container.name')}, {_champ(a, 'proc.cmdline')})" for a in bruit[:3])
-        + ". Une règle qui alerte sur tout finit par ne plus être lue."
+        + ". A rule that alerts on everything stops being read.",
+        fr="Vos règles alertent sur ce qui est normal, ou hors de notes-api : "
+        + "; ".join(f"{a.get('rule')} ({_champ(a, 'container.name')}, {_champ(a, 'proc.cmdline')})" for a in bruit[:3])
+        + ". Une règle qui alerte sur tout finit par ne plus être lue.",
     )
 
 
@@ -179,7 +201,9 @@ def test_les_regles_survivent_a_un_redemarrage(hote) -> None:
     depuis = _taille(hote)
     marqueur = _provoquer_un_shell(hote)
     alertes = _attendre(hote, depuis, regles, lambda a: _cite(a, "notes-api", marqueur))
-    assert alertes, (
-        f"Après un redémarrage de {SERVICE}, le shell dans notes-api n'est plus détecté : les "
-        "règles doivent vivre dans /etc/falco/rules.d/, pas dans une commande lancée à la main."
+    assert alertes, message(
+        en=f"After a restart of {SERVICE}, the shell in notes-api is no longer detected: "
+        "the rules must live in /etc/falco/rules.d/, not in a command typed by hand.",
+        fr=f"Après un redémarrage de {SERVICE}, le shell dans notes-api n'est plus détecté : les "
+        "règles doivent vivre dans /etc/falco/rules.d/, pas dans une commande lancée à la main.",
     )

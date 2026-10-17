@@ -33,6 +33,7 @@ from conftest import (
     exiger_workdir,
     exiger_workflows,
     jouer_act,
+    message,
     workdir_lab,
 )
 
@@ -52,11 +53,17 @@ def projet() -> Path:
 def _menaces(projet: Path) -> list[dict]:
     chemin = projet / MODELE
     if not chemin.is_file():
-        pytest.fail(f"`{MODELE}` est absent de la racine du projet : c'est le modèle à écrire.", pytrace=False)
+        pytest.fail(message(
+            en=f"`{MODELE}` is missing from the project root: that is the model to write.",
+            fr=f"`{MODELE}` est absent de la racine du projet : c'est le modèle à écrire.",
+        ), pytrace=False)
     donnees = yaml.safe_load(chemin.read_text(encoding="utf-8")) or {}
     menaces = donnees.get("threats") if isinstance(donnees, dict) else None
     if not isinstance(menaces, list):
-        pytest.fail(f"`{MODELE}` ne porte pas de liste `threats:`.", pytrace=False)
+        pytest.fail(message(
+            en=f"`{MODELE}` carries no `threats:` list.",
+            fr=f"`{MODELE}` ne porte pas de liste `threats:`.",
+        ), pytrace=False)
     return [m for m in menaces if isinstance(m, dict)]
 
 
@@ -77,20 +84,27 @@ def test_le_modele_est_valide(projet: Path) -> None:
         ["uv", "run", "--quiet", "--directory", str(projet), "python", "scripts/check_threat_model.py", MODELE],
         capture_output=True, text=True, timeout=300, check=False, env=environnement,
     )
-    assert res.returncode == 0, (
-        "Le vérificateur de l'équipe refuse le modèle :\n  "
-        + (res.stdout + res.stderr).strip()[-1200:]
+    assert res.returncode == 0, message(
+        en="The team's checker refuses the model:\n  "
+        + (res.stdout + res.stderr).strip()[-1200:],
+        fr="Le vérificateur de l'équipe refuse le modèle :\n  "
+        + (res.stdout + res.stderr).strip()[-1200:],
     )
 
 
 def test_chaque_route_de_l_application_est_analysee(projet: Path) -> None:
     routes = _routes(projet)
-    assert routes, "Aucune route trouvée dans src/notes_api/app.py : le fichier a changé de forme."
+    assert routes, message(
+        en="No route found in src/notes_api/app.py: the file has changed shape.",
+        fr="Aucune route trouvée dans src/notes_api/app.py : le fichier a changé de forme.",
+    )
     composants = {_normaliser(str(m.get("component") or "")) for m in _menaces(projet)}
     oubliees = [r for r in routes if _normaliser(r) not in composants]
-    assert not oubliees, (
-        f"Ces routes déclarées par l'application n'ont aucune menace analysée : {oubliees}. "
-        "Le composant d'une menace se nomme comme la route : « GET /notes/search »."
+    assert not oubliees, message(
+        en=f"These routes declared by the application have no threat analysed: {oubliees}. "
+        "A threat's component is named after the route: « GET /notes/search ».",
+        fr=f"Ces routes déclarées par l'application n'ont aucune menace analysée : {oubliees}. "
+        "Le composant d'une menace se nomme comme la route : « GET /notes/search ».",
     )
 
 
@@ -100,16 +114,23 @@ def test_l_injection_sql_est_identifiee_et_reste_ouverte(projet: Path) -> None:
         if _normaliser(str(m.get("component") or "")) == "GET /NOTES/SEARCH"
         and str(m.get("stride") or "").strip().upper() in {"T", "I"}
     ]
-    assert candidates, (
-        "La route GET /notes/search construit sa requête SQL par concaténation : "
+    assert candidates, message(
+        en="The GET /notes/search route builds its SQL query by concatenation: "
+        "that is a tampering (T) or an information disclosure (I) the model "
+        "must name. Read the `chercher` function in app.py.",
+        fr="La route GET /notes/search construit sa requête SQL par concaténation : "
         "c'est une altération (T) ou une divulgation (I) que le modèle doit nommer. "
-        "Lisez la fonction `chercher` de app.py."
+        "Lisez la fonction `chercher` de app.py.",
     )
-    assert any(str(m.get("status")) == "open" for m in candidates), (
-        "La menace sur /notes/search est déclarée traitée ou acceptée, alors que "
+    assert any(str(m.get("status")) == "open" for m in candidates), message(
+        en="The threat on /notes/search is declared mitigated or accepted, while "
+        "the code still concatenates the query. It stays `open` until the "
+        "next version fixes it: a model that lies about the state of the "
+        "code is worse than no model.",
+        fr="La menace sur /notes/search est déclarée traitée ou acceptée, alors que "
         "le code concatène toujours la requête. Elle reste `open` tant que la "
         "version suivante ne l'a pas corrigée : un modèle qui ment sur l'état "
-        "du code est pire que pas de modèle."
+        "du code est pire que pas de modèle.",
     )
 
 
@@ -118,33 +139,46 @@ def test_un_modele_casse_rend_le_pipeline_rouge(projet: Path) -> None:
     with copie_temporaire(projet) as copie:
         chemin = copie / MODELE
         if not chemin.is_file():
-            pytest.fail(f"`{MODELE}` est absent : rien à casser.", pytrace=False)
+            pytest.fail(message(
+                en=f"`{MODELE}` is missing: nothing to break.",
+                fr=f"`{MODELE}` est absent : rien à casser.",
+            ), pytrace=False)
         donnees = yaml.safe_load(chemin.read_text(encoding="utf-8"))
         donnees["threats"][0].pop("mitigation", None)
         chemin.write_text(yaml.safe_dump(donnees, sort_keys=False, allow_unicode=True), encoding="utf-8")
         res = jouer_act(copie, "push")
-    assert res.jobs and all(res.job(j) == "failure" for j in res.jobs), (
-        "Dans une copie où la première menace n'a plus de mitigation, le pipeline "
+    assert res.jobs and all(res.job(j) == "failure" for j in res.jobs), message(
+        en="In a copy where the first threat has no mitigation any more, the "
+        "pipeline must be red: an incomplete model must not be able to reach "
+        "main. Does the checker run in the workflow?\n  " + res.resume(),
+        fr="Dans une copie où la première menace n'a plus de mitigation, le pipeline "
         "doit être rouge : un modèle incomplet ne doit pas pouvoir atteindre main. "
-        "Le vérificateur tourne-t-il dans le workflow ?\n  " + res.resume()
+        "Le vérificateur tourne-t-il dans le workflow ?\n  " + res.resume(),
     )
-    assert any(ligne.startswith("THREAT-MODEL:") for ligne in res.lignes), (
-        "Le pipeline échoue, mais pas sur le modèle de menace : le vérificateur "
-        "n'a écrit aucune ligne `THREAT-MODEL: ...`.\n  " + res.resume()
+    assert any(ligne.startswith("THREAT-MODEL:") for ligne in res.lignes), message(
+        en="The pipeline fails, but not on the threat model: the checker wrote "
+        "no `THREAT-MODEL: ...` line.\n  " + res.resume(),
+        fr="Le pipeline échoue, mais pas sur le modèle de menace : le vérificateur "
+        "n'a écrit aucune ligne `THREAT-MODEL: ...`.\n  " + res.resume(),
     )
 
 
 def test_le_pipeline_verifie_le_modele_et_reste_vert(projet: Path) -> None:
     exiger_workflows(projet)
     res = jouer_act(projet, "push")
-    assert res.jobs and all(res.job(j) == "success" for j in res.jobs), (
-        "Sur le projet tel quel, le pipeline doit rester vert.\n  " + res.resume()
+    assert res.jobs and all(res.job(j) == "success" for j in res.jobs), message(
+        en="On the project as it stands, the pipeline must stay green.\n  " + res.resume(),
+        fr="Sur le projet tel quel, le pipeline doit rester vert.\n  " + res.resume(),
     )
-    assert any(ligne.startswith("threat model valid:") for ligne in res.lignes), (
-        "Le pipeline est vert mais ne vérifie pas le modèle de menace : aucune "
-        "ligne `threat model valid: ...`.\n  " + res.resume()
+    assert any(ligne.startswith("threat model valid:") for ligne in res.lignes), message(
+        en="The pipeline is green but does not check the threat model: no "
+        "`threat model valid: ...` line.\n  " + res.resume(),
+        fr="Le pipeline est vert mais ne vérifie pas le modèle de menace : aucune "
+        "ligne `threat model valid: ...`.\n  " + res.resume(),
     )
-    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), (
-        "Le pipeline vérifie le modèle mais ne lance plus les tests de l'application.\n  "
-        + res.resume()
+    assert any(re.search(r"\b\d+ passed\b.* in [0-9.]+s", ligne) for ligne in res.lignes), message(
+        en="The pipeline checks the model but no longer runs the application's "
+        "tests.\n  " + res.resume(),
+        fr="Le pipeline vérifie le modèle mais ne lance plus les tests de l'application.\n  "
+        + res.resume(),
     )

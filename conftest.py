@@ -53,6 +53,27 @@ def pytest_configure(config: pytest.Config) -> None:
     )
 
 
+def message(en: str, fr: str) -> str:
+    """Le message d'une assertion, dans la langue de l'apprenant.
+
+    Quand un test échoue, `dsoxlab check` affiche le **message écrit par
+    l'auteur** : c'est la seule consigne que l'apprenant reçoit à cet instant.
+    Tout le reste du catalogue existe en deux versions (`README.md` et
+    `README.fr.md`) ; ce fichier-ci ne le peut pas, le contrat imposant le nom
+    `challenge/tests/test_functional.py`. Il suit donc le modèle de
+    `hints.yaml`, qui porte lui aussi ses deux langues dans un seul fichier.
+
+    Le helper vit ici, et non dans dsoxlab : un test de lab doit rester
+    jouable par un simple `pytest`, sans l'outil installé. dsoxlab ne
+    reconnaît que la **forme** de l'appel, et `dsoxlab instructor audit`
+    compte les messages qui la portent.
+
+    La langue vient de `DSOXLAB_LANG`, comme pour le reste de l'outil, et
+    l'anglais est le défaut.
+    """
+    return fr if os.environ.get("DSOXLAB_LANG", "en").lower().startswith("fr") else en
+
+
 def workdir_lab(fichier_test: str | Path) -> Path:
     """Workdir du lab auquel appartient un fichier de test.
 
