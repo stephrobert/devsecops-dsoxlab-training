@@ -5,7 +5,7 @@ description = "Un petit service de notes : le projet que le fil rouge DevSecOps 
 requires-python = ">=3.12"
 dependencies = [
     "flask==3.0.3",
-    "werkzeug==3.0.3",
+    "werkzeug==3.1.9",
     "ecdsa==0.19.1",
 ]
 
