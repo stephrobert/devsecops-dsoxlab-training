@@ -9,7 +9,7 @@ une date d'expiration.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 45 minutes |
-| Leçon jumelée | [SCA : les vulnérabilités des dépendances](https://blog.stephane-robert.info/docs/securiser/analyser-code/sca/) |
+| Leçon jumelée | [SCA : les vulnérabilités des dépendances](https://www.stephane-robert.info/docs/securiser/analyser-code/sca/) |
 | Précédent | `capstone-v02-secrets-et-sast` |
 | Suivant | `capstone-v04-identite-sans-secret` |
 

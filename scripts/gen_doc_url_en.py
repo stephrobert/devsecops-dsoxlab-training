@@ -14,7 +14,7 @@ README anglais garde alors le guide français, marqué.
     python3 scripts/gen_doc_url_en.py ~/Projets/test-astro-5
     python3 scripts/gen_doc_url_en.py ~/Projets/test-astro-5 --check
 
-Les URL restent sur blog.stephane-robert.info, le domaine de production.
+Les URL restent sur www.stephane-robert.info, le domaine de production.
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SORTIE = ROOT / "scripts" / "doc_url_en.json"
-BLOG = "https://blog.stephane-robert.info"
+BLOG = "https://www.stephane-robert.info"
 RE_URL = re.compile(re.escape(BLOG) + r"/docs/[A-Za-z0-9/_.-]*")
 RE_TRANSLATION = re.compile(r"^translationOf:\s*['\"]?([^'\"\s]+)", re.MULTILINE)
 RE_FRONT = re.compile(r"\A---\n(.*?)\n---", re.DOTALL)

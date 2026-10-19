@@ -9,7 +9,7 @@ contrôleur d'entrée et sortir que le DNS.
 |---|---|
 | Cible | votre poste : Docker, kind et kubectl (`mise install`) |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [Cloisonner le réseau avec les NetworkPolicies](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
+| Leçon jumelée | [Cloisonner le réseau avec les NetworkPolicies](https://www.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/network-policies/) |
 | Précédent | `capstone-v08-admission-signee` |
 | Suivant | `capstone-v09b-detection-falco` |
 

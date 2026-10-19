@@ -9,7 +9,7 @@ rôle que seule la branche main peut endosser.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [OIDC : s'authentifier sans secret](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/) |
+| Leçon jumelée | [OIDC : s'authentifier sans secret](https://www.stephane-robert.info/docs/pipeline-cicd/github/securite/oidc/) |
 | Précédent | `capstone-v03-sca-et-triage` |
 | Suivant | `capstone-v05-pipeline-durci` |
 

@@ -20,7 +20,7 @@ skills:
   - docker
 distros:
   - ubuntu24
-doc_url: https://blog.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
+doc_url: https://www.stephane-robert.info/docs/devops/implementation/projets-fil-rouge-devsecops/
 # Falco lit les appels système du noyau : il lui faut une vraie machine. Un
 # cluster kind partage le noyau de l'hôte, et ne prouverait rien de plus.
 runtime:

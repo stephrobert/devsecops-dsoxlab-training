@@ -9,7 +9,7 @@ another registry is refused at the door.
 |---|---|
 | Target | your workstation: Docker, kind, kubectl, helm and cosign (`mise install`) |
 | Duration | about 50 minutes |
-| Paired lesson | [Verifying artifacts at admission](https://blog.stephane-robert.info/en/docs/devsecops/runtime/kubernetes-supply-chain-security/) |
+| Paired lesson | [Verifying artifacts at admission](https://www.stephane-robert.info/en/docs/devsecops/runtime/kubernetes-supply-chain-security/) |
 | Previous | `capstone-v07-sbom-et-provenance` |
 | Next | `capstone-v09-runtime-cloisonne` |
 

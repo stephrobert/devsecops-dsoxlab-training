@@ -9,7 +9,7 @@ privilège, et l'infrastructure n'expose plus rien à Internet.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 60 minutes |
-| Leçon jumelée | [Scanner image, dépendances et IaC avec Trivy](https://blog.stephane-robert.info/docs/securiser/outils/trivy/) |
+| Leçon jumelée | [Scanner image, dépendances et IaC avec Trivy](https://www.stephane-robert.info/docs/securiser/outils/trivy/) |
 | Précédent | `capstone-v05-pipeline-durci` |
 | Suivant | `capstone-v07-sbom-et-provenance` |
 

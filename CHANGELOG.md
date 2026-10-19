@@ -10,6 +10,22 @@ published by a tag, which produces a signed archive (see
 [RELEASING.md](./RELEASING.md)); the unit that matters remains the lab, and for
 this catalog, the version of the common thread.
 
+## [0.2.1] - 2026-10-19
+
+### Changed
+
+- **Every `doc_url` now points at `www.stephane-robert.info`.** The site moved
+  from `blog.` to `www.`, and the old host redirects with a 301 to the same
+  path. Nothing was broken: `validate-structure --check-urls` follows
+  redirections, and this catalogue was green before a single line changed. The
+  migration is housekeeping, not repair: a `doc_url` should point at the page
+  rather than depend on a redirection that will be removed one day.
+
+  The paths are identical between the two hosts, so only the host changed. The
+  359 `doc_url` the catalogues declare were looked up in the site's own
+  repository, offline: all of them exist there, including twenty-three pages
+  the old host answered with a 404.
+
 ## [0.2.0] - 2026-10-17
 
 ### Changed

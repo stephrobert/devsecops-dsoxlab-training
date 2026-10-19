@@ -9,7 +9,7 @@ sur son activité normale.
 |---|---|
 | Cible | une VM Ubuntu 24.04 provisionnée par dsoxlab (KVM ou Incus) |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [Détection runtime avec Falco](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/falco/) |
+| Leçon jumelée | [Détection runtime avec Falco](https://www.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/falco/) |
 | Précédent | `capstone-v09-runtime-cloisonne` |
 | Suivant | `capstone-v10-vex-et-exceptions` |
 

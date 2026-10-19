@@ -8,7 +8,7 @@ the code and checked on every push.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 40 minutes |
-| Paired lesson | [Threat modeling with STRIDE](https://blog.stephane-robert.info/en/docs/devsecops/threat-modeling/stride/) |
+| Paired lesson | [Threat modeling with STRIDE](https://www.stephane-robert.info/en/docs/devsecops/threat-modeling/stride/) |
 | Previous | `capstone-v00-pipeline-minimal` |
 | Next | `capstone-v02-secrets-et-sast` |
 

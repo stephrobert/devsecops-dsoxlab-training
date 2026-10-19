@@ -30,7 +30,7 @@ import pytest
 
 REPO = Path(__file__).resolve().parent.parent
 TABLE = REPO / "scripts" / "doc_url_en.json"
-BLOG = "https://blog.stephane-robert.info"
+BLOG = "https://www.stephane-robert.info"
 RE_LIEN = re.compile(re.escape(BLOG) + r"/(?:en/)?docs/[A-Za-z0-9/_.#-]*")
 
 

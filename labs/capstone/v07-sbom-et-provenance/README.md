@@ -9,7 +9,7 @@ script refuses to deploy one that the main pipeline did not build.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 55 minutes |
-| Paired lesson | [From SLSA provenance to a decision](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/) |
+| Paired lesson | [From SLSA provenance to a decision](https://www.stephane-robert.info/en/docs/devsecops/supply-chain/slsa-provenance/) |
 | Previous | `capstone-v06-image-et-iac` |
 | Next | `capstone-v08-admission-signee` |
 

@@ -10,7 +10,7 @@ them.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 50 minutes |
-| Paired lesson | [VEX: stating what is actually exploitable](https://blog.stephane-robert.info/en/docs/devsecops/supply-chain/vex/) |
+| Paired lesson | [VEX: stating what is actually exploitable](https://www.stephane-robert.info/en/docs/devsecops/supply-chain/vex/) |
 | Previous | `capstone-v09-runtime-cloisonne` |
 | Next | `capstone-v11-slo-et-dora` |
 

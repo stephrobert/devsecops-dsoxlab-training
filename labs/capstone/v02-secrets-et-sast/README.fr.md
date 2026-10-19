@@ -9,7 +9,7 @@ corrigée.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [Tests de sécurité automatisés](https://blog.stephane-robert.info/docs/devops/fondamentaux/tests-securite/) |
+| Leçon jumelée | [Tests de sécurité automatisés](https://www.stephane-robert.info/docs/devops/fondamentaux/tests-securite/) |
 | Précédent | `capstone-v01-modele-de-menace` |
 | Suivant | `capstone-v03-sca-et-triage` |
 
