@@ -8,7 +8,7 @@ code et vérifié à chaque push.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 40 minutes |
-| Leçon jumelée | [Threat modeling avec STRIDE](https://blog.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/) |
+| Leçon jumelée | [Threat modeling avec STRIDE](https://www.stephane-robert.info/docs/devops/fondamentaux/threat-modeling-stride/) |
 | Précédent | `capstone-v00-pipeline-minimal` |
 | Suivant | `capstone-v02-secrets-et-sast` |
 

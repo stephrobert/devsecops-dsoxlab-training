@@ -8,7 +8,7 @@ behind NetworkPolicies that only let the ingress controller in and DNS out.
 |---|---|
 | Target | your workstation: Docker, kind and kubectl (`mise install`) |
 | Duration | about 50 minutes |
-| Paired lesson | [Isolating the network with NetworkPolicies](https://blog.stephane-robert.info/en/docs/devsecops/runtime/network-policies/) |
+| Paired lesson | [Isolating the network with NetworkPolicies](https://www.stephane-robert.info/en/docs/devsecops/runtime/network-policies/) |
 | Previous | `capstone-v08-admission-signee` |
 | Next | `capstone-v09b-detection-falco` |
 

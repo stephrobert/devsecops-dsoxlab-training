@@ -9,7 +9,7 @@ computation of the four DORA metrics from its journals.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 60 minutes |
-| Paired lesson | [SLO, SLI and error budgets](https://blog.stephane-robert.info/en/docs/devsecops/reliability/slo-sli-error-budget/) |
+| Paired lesson | [SLO, SLI and error budgets](https://www.stephane-robert.info/en/docs/devsecops/reliability/slo-sli-error-budget/) |
 | Previous | `capstone-v10-vex-et-exceptions` |
 
 ```bash

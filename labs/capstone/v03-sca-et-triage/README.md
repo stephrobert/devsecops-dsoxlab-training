@@ -8,7 +8,7 @@ and the one without a fix is accepted in writing, with an expiry date.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 45 minutes |
-| Paired lesson | [SCA: vulnerabilities in dependencies](https://blog.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/) |
+| Paired lesson | [SCA: vulnerabilities in dependencies](https://www.stephane-robert.info/en/docs/devsecops/code-dependencies/sca/) |
 | Previous | `capstone-v02-secrets-et-sast` |
 | Next | `capstone-v04-identite-sans-secret` |
 

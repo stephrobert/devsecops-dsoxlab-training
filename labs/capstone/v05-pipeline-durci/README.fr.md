@@ -9,7 +9,7 @@ changement des chemins sensibles.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [Auditer ses workflows avec zizmor](https://blog.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/) |
+| Leçon jumelée | [Auditer ses workflows avec zizmor](https://www.stephane-robert.info/docs/pipeline-cicd/github/securite/zizmor/) |
 | Précédent | `capstone-v04-identite-sans-secret` |
 | Suivant | `capstone-v06-image-et-iac` |
 

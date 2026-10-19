@@ -9,7 +9,7 @@ autre registre est refusée à la porte.
 |---|---|
 | Cible | votre poste : Docker, kind, kubectl, helm et cosign (`mise install`) |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [Vérifier les artefacts à l'admission](https://blog.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
+| Leçon jumelée | [Vérifier les artefacts à l'admission](https://www.stephane-robert.info/docs/conteneurs/orchestrateurs/kubernetes/securiser/supply-chain-security/) |
 | Précédent | `capstone-v07-sbom-et-provenance` |
 | Suivant | `capstone-v09-runtime-cloisonne` |
 

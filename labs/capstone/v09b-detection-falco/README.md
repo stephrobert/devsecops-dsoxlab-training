@@ -9,7 +9,7 @@ its normal activity.
 |---|---|
 | Target | an Ubuntu 24.04 VM provisioned by dsoxlab (KVM or Incus) |
 | Duration | about 50 minutes |
-| Paired lesson | [Runtime detection with Falco](https://blog.stephane-robert.info/en/docs/devsecops/runtime/falco/) |
+| Paired lesson | [Runtime detection with Falco](https://www.stephane-robert.info/en/docs/devsecops/runtime/falco/) |
 | Previous | `capstone-v09-runtime-cloisonne` |
 | Next | `capstone-v10-vex-et-exceptions` |
 

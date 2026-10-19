@@ -9,7 +9,7 @@ the main branch can assume.
 |---|---|
 | Target | your workstation: uv, Python and act (`mise install`), a **Docker** that answers |
 | Duration | about 50 minutes |
-| Paired lesson | [OIDC: authenticating without a secret](https://blog.stephane-robert.info/en/docs/github-actions/security/oidc/) |
+| Paired lesson | [OIDC: authenticating without a secret](https://www.stephane-robert.info/en/docs/github-actions/security/oidc/) |
 | Previous | `capstone-v03-sca-et-triage` |
 | Next | `capstone-v05-pipeline-durci` |
 

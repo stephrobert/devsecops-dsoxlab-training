@@ -9,7 +9,7 @@ aux exploitants des versions précédentes ce qui ne les concerne pas.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 50 minutes |
-| Leçon jumelée | [VEX : dire ce qui est réellement exploitable](https://blog.stephane-robert.info/docs/securiser/supply-chain/vex/) |
+| Leçon jumelée | [VEX : dire ce qui est réellement exploitable](https://www.stephane-robert.info/docs/securiser/supply-chain/vex/) |
 | Précédent | `capstone-v09-runtime-cloisonne` |
 | Suivant | `capstone-v11-slo-et-dora` |
 

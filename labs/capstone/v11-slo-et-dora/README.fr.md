@@ -9,7 +9,7 @@ renvoie, et le calcul des quatre métriques DORA depuis ses journaux.
 |---|---|
 | Cible | votre poste : uv, Python et act (`mise install`), **Docker** qui répond |
 | Durée | environ 60 minutes |
-| Leçon jumelée | [SLO, SLI et error budgets](https://blog.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/) |
+| Leçon jumelée | [SLO, SLI et error budgets](https://www.stephane-robert.info/docs/devops/fondamentaux/slo-sli-error-budget/) |
 | Précédent | `capstone-v10-vex-et-exceptions` |
 
 ```bash
