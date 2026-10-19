@@ -11,7 +11,7 @@ description: |
 section: capstone
 level: capstone
 difficulty: advanced
-lab_type: lab
+lab_type: capstone
 estimated_time: 60m
 skills:
   - slo

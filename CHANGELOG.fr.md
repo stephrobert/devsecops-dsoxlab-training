@@ -10,6 +10,28 @@ publie par un tag, qui produit une archive signée (voir
 [RELEASING.fr.md](./RELEASING.fr.md)) ; l'unité qui compte reste le lab, et
 pour ce catalogue, la version du fil rouge.
 
+## [0.2.2] - 2026-10-19
+
+### Corrigé
+
+- **Les quatre labs qui closent un niveau sont déclarés `capstone`.** V01, V07,
+  V09 et V11 servent d'épreuve aux niveaux d1 à d4 du parcours DevSecOps, en
+  portant `lab_type: lab`. Le fil rouge rangeait donc ses épreuves parmi ses
+  exercices, et le contrôle des niveaux du site refusait les quatre niveaux :
+  une épreuve n'accepte qu'un `challenge` ou un `capstone`, parce que c'est ce
+  qui distingue « on apprend ici » de « on prouve ici ».
+
+  L'écart ne se voyait pas depuis ce dépôt, et il faut le dire parce que ça
+  gouverne où le contrôle doit vivre : rien dans un `lab.yaml` ne dit qu'un lab
+  clôt un niveau, la déclaration vit dans le parcours. `level: capstone` ne
+  pouvait pas servir d'indice non plus, puisqu'il vaut pour les treize labs du
+  fil rouge.
+
+  Les neuf autres `capstone-vNN` restent volontairement `lab` : ce sont les
+  étapes du durcissement de `notes-api`, pas des épreuves. Aucun verdict, aucune
+  note et aucun test ne change, et le seul effet est le rangement des quatre
+  labs par ce qui les lit.
+
 ## [0.2.1] - 2026-10-19
 
 ### Modifié

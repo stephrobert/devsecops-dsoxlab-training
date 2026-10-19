@@ -11,7 +11,7 @@ description: |
 section: capstone
 level: capstone
 difficulty: intermediate
-lab_type: lab
+lab_type: capstone
 estimated_time: 55m
 skills:
   - sbom
