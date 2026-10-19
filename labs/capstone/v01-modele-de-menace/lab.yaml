@@ -9,7 +9,7 @@ description: |
 section: capstone
 level: capstone
 difficulty: beginner
-lab_type: lab
+lab_type: capstone
 estimated_time: 40m
 skills:
   - threat-modeling

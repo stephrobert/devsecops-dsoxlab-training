@@ -10,6 +10,28 @@ published by a tag, which produces a signed archive (see
 [RELEASING.md](./RELEASING.md)); the unit that matters remains the lab, and for
 this catalog, the version of the common thread.
 
+## [0.2.2] - 2026-10-19
+
+### Fixed
+
+- **The four labs that close a level are declared `capstone`.** V01, V07, V09
+  and V11 serve as the exam for levels d1 to d4 of the DevSecOps curriculum,
+  while carrying `lab_type: lab`. The red thread therefore filed its exams
+  among its exercises, and the site's level check rejected all four levels: an
+  exam accepts only a `challenge` or a `capstone`, because that is what
+  separates "you learn here" from "you prove here".
+
+  The mismatch was not visible from this repository, and that is worth stating
+  because it decides where the check belongs: nothing in a `lab.yaml` says that
+  a lab closes a level, the declaration lives in the curriculum. `level:
+  capstone` could not serve as a hint either, since all thirteen labs of the
+  red thread carry it.
+
+  The nine other `capstone-vNN` labs deliberately stay `lab`: they are the
+  steps that harden `notes-api`, not exams. No verdict, no score and no test
+  changes; the only effect is how the four labs are filed by whatever reads
+  them.
+
 ## [0.2.1] - 2026-10-19
 
 ### Changed
