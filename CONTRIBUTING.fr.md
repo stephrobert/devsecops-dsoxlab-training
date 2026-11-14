@@ -68,7 +68,7 @@ laissent aucune trace dans ce qu'act produit.
 ```text
 labs/capstone/<lab>/
 ├── lab.yaml            # le contrat (id, level, runtime, fixtures, validation…)
-├── lab.fr.yaml         # surcharge FR du title/description UNIQUEMENT
+├── lab.fr.yaml         # surcharge FR du title, de la description et des libellés de critères UNIQUEMENT
 ├── README.md / README.fr.md        # la leçon
 ├── scenario.md / scenario.fr.md    # la situation, l'état à atteindre, la pratique SSDF visée
 ├── fixtures/           # notes-api tel que la version précédente l'a laissé
@@ -78,6 +78,11 @@ labs/capstone/<lab>/
     └── tests/test_functional.py    # la preuve
 solution/capstone/<lab>/            # solution de référence, chiffrée par ansible-vault
 ```
+
+Cet arbre montre les conventions de ce catalogue. Ce que chaque fichier porte
+pour le moteur, et les champs qu'accepte `lab.yaml`, sont documentés dans
+dsoxlab : [guide de l'auteur](https://github.com/stephrobert/dsoxlab/blob/main/docs/catalog-author.fr.md)
+et [contrat](https://github.com/stephrobert/dsoxlab/blob/main/docs/contract-v1.fr.md).
 
 Il n'y a ici ni `setup.yaml` ni `cleanup.yaml` : `runtime.fixtures` déclare ce
 qui est copié, en préservant les sous-répertoires, et `dsoxlab clean` retire le

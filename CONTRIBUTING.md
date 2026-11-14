@@ -67,7 +67,7 @@ action by SHA) are in the text and leave no trace in what act produces.
 ```text
 labs/capstone/<lab>/
 ├── lab.yaml            # the contract (id, level, runtime, fixtures, validation…)
-├── lab.fr.yaml         # FR override of title/description ONLY
+├── lab.fr.yaml         # FR override of title, description and criteria labels ONLY
 ├── README.md / README.fr.md        # the lesson
 ├── scenario.md / scenario.fr.md    # the situation, the target state, the SSDF practice targeted
 ├── fixtures/           # notes-api as the previous version left it
@@ -77,6 +77,11 @@ labs/capstone/<lab>/
     └── tests/test_functional.py    # the proof
 solution/capstone/<lab>/            # reference solution, encrypted with ansible-vault
 ```
+
+This tree shows this catalog's conventions. What each file holds for the
+engine, and which fields `lab.yaml` accepts, is documented in dsoxlab:
+[catalog author guide](https://github.com/stephrobert/dsoxlab/blob/main/docs/catalog-author.md)
+and [contract](https://github.com/stephrobert/dsoxlab/blob/main/docs/contract-v1.md).
 
 There is no `setup.yaml` and no `cleanup.yaml` here: `runtime.fixtures`
 declares what is copied, preserving subdirectories, and `dsoxlab clean` removes

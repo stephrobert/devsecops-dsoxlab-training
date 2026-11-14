@@ -99,35 +99,23 @@ pre-filled by `dsoxlab support --issue`.
 
 ## How it works
 
-### The declarative contract (two levels)
+### The engine, documented where it lives
 
-The catalog is described by data, not code, which keeps the `dsoxlab` engine
-domain-agnostic:
+This catalog is played by `dsoxlab`, which documents its own contract and
+commands. This README does not repeat them, so that it cannot drift when the
+engine changes (dsoxlab issue #201):
 
-- **`meta.yml`**, at the root, declares the repository's identity and the
-  **order** of the versions, which is the order of play: it is never
-  reordered;
-- **`lab.yaml`**, per lab, declares its `skills`, its `level`, its `runtime`
-  (type, fixtures), its `distros`, its `doc_url` and a `validation` block. A
-  `lab.fr.yaml` overrides the `title` and the `description` in French, and
-  nothing else.
+- the contract: `meta.yml`, `lab.yaml`, `lab.<lang>.yaml`, the runtimes and
+  their fields: [contract](https://github.com/stephrobert/dsoxlab/blob/main/docs/contract-v1.md);
+- the commands and the life of a lab, from `run` to `check`:
+  [commands](https://github.com/stephrobert/dsoxlab/blob/main/docs/commands.md) and [playing a lab](https://github.com/stephrobert/dsoxlab/blob/main/docs/learner.md);
+- writing a lab, and what `validate-structure` checks:
+  [catalog author guide](https://github.com/stephrobert/dsoxlab/blob/main/docs/catalog-author.md).
 
-`dsoxlab validate-structure` checks the whole contract, and
-`tests/test_schemas_dsoxlab.py` checks each `lab.yaml` against the schema
-published by dsoxlab.
-
-### The lab lifecycle
-
-```bash
-dsoxlab list-labs              # browse the catalog
-dsoxlab show      <id>         # a lab's metadata and state
-dsoxlab run       <id>         # set up the starting state
-dsoxlab challenge <id>         # read the mission, no step-by-step
-dsoxlab hint      <id>         # reveal a hint (deducted from the score)
-dsoxlab check     <id>         # run the tests, compute and record the score
-dsoxlab clean     <id>         # remove the working directory
-dsoxlab progress               # progress per section, average score
-```
+What is specific to this catalog: [`meta.yml`](./meta.yml) carries the order
+of the versions, which is the order of play, and it is never reordered.
+[`tests/test_schemas_dsoxlab.py`](./tests/test_schemas_dsoxlab.py) checks
+each `lab.yaml` against the schema published by dsoxlab.
 
 ### Runtimes
 
