@@ -67,7 +67,7 @@ action by SHA) are in the text and leave no trace in what act produces.
 ```text
 labs/capstone/<lab>/
 ├── lab.yaml            # the contract (id, level, runtime, fixtures, validation…)
-├── lab.fr.yaml         # FR override of title/description ONLY
+├── lab.fr.yaml         # FR override of title, description and criteria labels ONLY
 ├── README.md / README.fr.md        # the lesson
 ├── scenario.md / scenario.fr.md    # the situation, the target state, the SSDF practice targeted
 ├── fixtures/           # notes-api as the previous version left it

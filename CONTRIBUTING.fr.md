@@ -68,7 +68,7 @@ laissent aucune trace dans ce qu'act produit.
 ```text
 labs/capstone/<lab>/
 ├── lab.yaml            # le contrat (id, level, runtime, fixtures, validation…)
-├── lab.fr.yaml         # surcharge FR du title/description UNIQUEMENT
+├── lab.fr.yaml         # surcharge FR du title, de la description et des libellés de critères UNIQUEMENT
 ├── README.md / README.fr.md        # la leçon
 ├── scenario.md / scenario.fr.md    # la situation, l'état à atteindre, la pratique SSDF visée
 ├── fixtures/           # notes-api tel que la version précédente l'a laissé
