@@ -79,6 +79,11 @@ labs/capstone/<lab>/
 solution/capstone/<lab>/            # solution de référence, chiffrée par ansible-vault
 ```
 
+Cet arbre montre les conventions de ce catalogue. Ce que chaque fichier porte
+pour le moteur, et les champs qu'accepte `lab.yaml`, sont documentés dans
+dsoxlab : [guide de l'auteur](https://github.com/stephrobert/dsoxlab/blob/main/docs/catalog-author.fr.md)
+et [contrat](https://github.com/stephrobert/dsoxlab/blob/main/docs/contract-v1.fr.md).
+
 Il n'y a ici ni `setup.yaml` ni `cleanup.yaml` : `runtime.fixtures` déclare ce
 qui est copié, en préservant les sous-répertoires, et `dsoxlab clean` retire le
 répertoire de travail.
