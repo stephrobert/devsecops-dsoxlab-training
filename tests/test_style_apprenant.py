@@ -76,7 +76,7 @@ def test_il_y_a_des_textes_a_lire() -> None:
     # de soixante labs le rendrait rouge à vide. Chaque lab porte six fichiers
     # Markdown (README, scénario et consigne, en anglais et en français).
     nb_labs = len(list(LABS.rglob("lab.yaml")))
-    assert nb_labs and len(trouves) >= 6 * nb_labs, f"Seulement {len(trouves)} fichier(s) .md trouvé(s) pour {nb_labs} lab(s)."
+    assert nb_labs and len(trouves) >= 4 * nb_labs, f"Seulement {len(trouves)} fichier(s) .md trouvé(s) pour {nb_labs} lab(s)."
 
 
 @pytest.mark.parametrize(

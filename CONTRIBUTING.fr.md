@@ -70,7 +70,6 @@ labs/capstone/<lab>/
 ├── lab.yaml            # le contrat (id, level, runtime, fixtures, validation…)
 ├── lab.fr.yaml         # surcharge FR du title, de la description et des libellés de critères UNIQUEMENT
 ├── README.md / README.fr.md        # la leçon
-├── scenario.md / scenario.fr.md    # la situation, l'état à atteindre, la pratique SSDF visée
 ├── fixtures/           # notes-api tel que la version précédente l'a laissé
 └── challenge/
     ├── README.md / README.fr.md    # la mission, sans pas-à-pas
@@ -93,7 +92,7 @@ répertoire de travail.
 - **Partir de la solution précédente.** Les fixtures d'une version sont la
   solution déchiffrée de celle d'avant, sans rien d'autre : une correction de la
   solution V2 se reporte dans les fixtures de V3.
-- **Citer la pratique SSDF mise en oeuvre**, dans les deux scénarios :
+- **Citer la pratique SSDF mise en oeuvre**, dans les deux énoncés :
   « Pratique SSDF visée : PS.1 (libellé) » et « SSDF practice targeted: PS.1
   (label) ». `tests/test_curriculums.py` refuse un code absent de la grille ou
   un libellé qui le contredit.
