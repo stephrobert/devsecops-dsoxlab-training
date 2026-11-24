@@ -69,7 +69,6 @@ labs/capstone/<lab>/
 ├── lab.yaml            # the contract (id, level, runtime, fixtures, validation…)
 ├── lab.fr.yaml         # FR override of title, description and criteria labels ONLY
 ├── README.md / README.fr.md        # the lesson
-├── scenario.md / scenario.fr.md    # the situation, the target state, the SSDF practice targeted
 ├── fixtures/           # notes-api as the previous version left it
 └── challenge/
     ├── README.md / README.fr.md    # the mission, no step-by-step
@@ -92,7 +91,7 @@ the working directory.
 - **Start from the previous solution.** A version's fixtures are the decrypted
   solution of the one before, and nothing else: a fix to the V2 solution is
   carried over to the V3 fixtures.
-- **Cite the SSDF practice implemented**, in both scenarios: "SSDF practice
+- **Cite the SSDF practice implemented**, in both briefs: "SSDF practice
   targeted: PS.1 (label)" and "Pratique SSDF visée : PS.1 (libellé)".
   `tests/test_curriculums.py` refuses a code missing from the grid or a label
   that contradicts it.

@@ -32,7 +32,7 @@ REPO = Path(__file__).resolve().parent.parent
 LABS = REPO / "labs"
 SOURCE = REPO / "curriculums.yml"
 
-FICHIERS_LUS = ("scenario.fr.md", "scenario.md")
+FICHIERS_LUS = ("challenge/README.fr.md", "challenge/README.md")
 
 # « Pratique SSDF visée : PS.1 (libellé) » et « SSDF practice targeted: PS.1
 # (label) ». Plusieurs pratiques se citent l'une après l'autre, chacune avec son

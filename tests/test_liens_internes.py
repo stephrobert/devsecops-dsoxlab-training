@@ -72,7 +72,7 @@ def test_il_y_a_des_markdown_a_verifier() -> None:
     # de soixante labs le rendrait rouge à vide. Chaque lab porte six fichiers
     # Markdown (README, scénario et consigne, en anglais et en français).
     nb_labs = len(list((Path(__file__).resolve().parent.parent / "labs").rglob("lab.yaml")))
-    assert nb_labs and len(trouves) >= 6 * nb_labs, (
+    assert nb_labs and len(trouves) >= 4 * nb_labs, (
         f"Seulement {len(trouves)} fichier(s) .md trouvé(s) : le glob est "
         "probablement cassé, et la suite deviendrait verte sans rien mesurer."
     )
